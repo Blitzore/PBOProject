@@ -210,10 +210,9 @@ public class MainGeometri {
                 case 1: // Kubus
                     System.out.print("Masukkan sisi kubus: ");
                     double sisiKubus = scanner.nextDouble();
-                    PrismaPersegi kubus = new PrismaPersegi(sisiKubus);
-                    kubus.setTinggiPrisma(sisiKubus);
-                    System.out.printf("Volume: %.2f\n", kubus.hitungVolume());
-                    System.out.printf("Luas Permukaan: %.2f\n", kubus.hitungLuasPermukaan());
+                    PrismaPersegi kubus = new PrismaPersegi(sisiKubus); // Konstruktor baru
+                    System.out.printf("Volume: %.2f\n", kubus.getVolume()); // Gunakan getter
+                    System.out.printf("Luas Permukaan: %.2f\n", kubus.getLuasPermukaan()); // Gunakan getter
                     break;
                     
                 case 2: // Balok
