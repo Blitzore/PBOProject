@@ -9,13 +9,16 @@ package bendageometri.benda2d;
  * @author nbnrc
  */
 public class Segitiga extends Benda2D {
-    private double alas;    // Salah satu sisi segitiga, digunakan juga untuk keliling
-    private double tinggi;  // Tinggi relatif terhadap 'alas' untuk perhitungan luas
-    private double sisiB;   // Sisi kedua untuk keliling
-    private double sisiC;   // Sisi ketiga untuk keliling
-
+    public final double alas;
+    public double tinggi;
+    public double sisiB;
+    public double sisiC;
+    
+    public double luas;
+    public double keliling;
+    
     // Konstruktor utama
-    public Segitiga(double alas, double tinggi, double sisiB, double sisiC) {
+    public Segitiga(double alas, double tinggi, double sisiB, double sisiC) throws IllegalArgumentException {
         // Validasi nilai positif untuk semua dimensi
         if (alas <= 0 || tinggi <= 0 || sisiB <= 0 || sisiC <= 0) {
             throw new IllegalArgumentException("Dimensi alas, tinggi, sisiB, dan sisiC segitiga harus bernilai positif.");
@@ -30,6 +33,10 @@ public class Segitiga extends Benda2D {
         this.tinggi = tinggi;
         this.sisiB = sisiB;
         this.sisiC = sisiC;
+
+        // Hitung dan simpan luas serta keliling saat objek dibuat
+        this.luas = hitungLuas();
+        this.keliling = hitungKeliling();
     }
 
     // Metode privat untuk validasi ketaksamaan sisi segitiga
@@ -40,34 +47,35 @@ public class Segitiga extends Benda2D {
                (side2 + side3 > side1);
     }
 
-    // Getter
-    public double getAlas() {
-        return alas;
-    }
-
-    public double getTinggi() {
-        return tinggi;
-    }
-
-    // getSisiA() sekarang secara efektif adalah getAlas() jika merujuk pada sisi pertama.
-    
-    public double getSisiB() {
-        return sisiB;
-    }
-
-    public double getSisiC() {
-        return sisiC;
-    }
-
     @Override
     public double hitungLuas() {
-        // Luas dihitung berdasarkan field alas dan tinggi yang disimpan.
-        return 0.5 * this.alas * this.tinggi;
+        luas = 0.5 * this.alas * this.tinggi;
+        return luas;
+    }
+
+    // Overloading untuk hitungLuas dengan parameter alas dan tinggi
+    public double hitungLuas(double a, double t) {
+        if (a <= 0 || t <= 0) {
+            throw new IllegalArgumentException("Alas dan tinggi untuk perhitungan luas harus bernilai positif.");
+        }
+        return 0.5 * a * t;
     }
 
     @Override
     public double hitungKeliling() {
-        // Keliling dihitung menggunakan alas (sebagai sisi pertama), sisiB, dan sisiC
-        return this.alas + this.sisiB + this.sisiC;
+        keliling = this.alas + this.sisiB + this.sisiC;
+        return keliling;
+    }
+
+    // Overloading untuk hitungKeliling dengan parameter ketiga sisi
+    public double hitungKeliling(double a, double b, double c) {
+        if (a <= 0 || b <= 0 || c <= 0) {
+            throw new IllegalArgumentException("Semua sisi untuk perhitungan keliling harus bernilai positif.");
+        }
+        // Validasi ketaksamaan segitiga untuk sisi-sisi yang diberikan
+        if (!cekValiditasSisiSegitiga(a, b, c)) {
+            throw new IllegalArgumentException("Sisi-sisi yang diberikan (a, b, c) tidak membentuk segitiga yang valid.");
+        }
+        return a + b + c;
     }
 }
