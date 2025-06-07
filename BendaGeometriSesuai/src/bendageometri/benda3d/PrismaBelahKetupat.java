@@ -10,21 +10,29 @@ import bendageometri.benda2d.BelahKetupat;
  * @author nbnrc
  */
 public class PrismaBelahKetupat extends BelahKetupat { // Mewarisi BelahKetupat untuk alasnya
-    private double tinggiPrisma; // Bisa mutable dengan setter
+    private double tinggiPrisma;
+    private double volume; // Atribut private untuk menyimpan nilai volume
+    private double luasPermukaan; // Atribut private untuk menyimpan nilai luas permukaan
 
     // Konstruktor utama
-    public PrismaBelahKetupat(double sisiAlas, double d1Alas, double d2Alas, double tinggiPrisma) {
-        super(sisiAlas, d1Alas, d2Alas);
-        // Dimensi alas menjadi immutable dan validasinya (termasuk konsistensi sisi vs diagonal)
-        // ditangani oleh BelahKetupat
-        setTinggiPrisma(tinggiPrisma); // Menggunakan setter untuk validasi tinggiPrisma
+    public PrismaBelahKetupat(double sisiAlas, double d1Alas, double d2Alas, double tinggiPrisma) throws IllegalArgumentException, IllegalStateException {
+        super(sisiAlas, d1Alas, d2Alas); // Validasi alas oleh BelahKetupat
+        setTinggiPrisma(tinggiPrisma);
+
+        // Hitung dan simpan volume serta luas permukaan saat objek dibuat
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
     
     // Overloaded constructor: jika alas BelahKetupat didefinisikan hanya dengan dua diagonalnya
     // (sisi alas akan dihitung oleh konstruktor BelahKetupat yang di-overload)
-    public PrismaBelahKetupat(double d1Alas, double d2Alas, double tinggiPrisma) {
-        super(d1Alas, d2Alas); // Memanggil konstruktor BelahKetupat(double diagonal1, double diagonal2)
+    public PrismaBelahKetupat(double d1Alas, double d2Alas, double tinggiPrisma) throws IllegalArgumentException, IllegalStateException {
+        super(d1Alas, d2Alas); // Memanggil konstruktor BelahKetupat(d1, d2)
         setTinggiPrisma(tinggiPrisma);
+
+        // Hitung dan simpan volume serta luas permukaan saat objek dibuat
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
 
 
@@ -40,18 +48,61 @@ public class PrismaBelahKetupat extends BelahKetupat { // Mewarisi BelahKetupat 
         }
         this.tinggiPrisma = tinggiPrisma;
     }
+    
+    // Getter volume
+    public double getVolume() {
+        return volume;
+    }
 
-    // Getter untuk properti alas diwarisi dari BelahKetupat (immutable)
+    // Getter luasPermukaan
+    public double getLuasPermukaan() {
+        return luasPermukaan;
+    }
 
     @Override
     public double hitungVolume() {
-        return super.hitungLuas() * this.tinggiPrisma;
+        // Volume Prisma = Luas Alas (dari BelahKetupat) * tinggiPrisma
+        double calculatedVolume = this.luas * this.tinggiPrisma; // Menggunakan atribut luas dari superclass
+        return calculatedVolume;
+    }
+    
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double d1Alas, double d2Alas, double tinggiPrisma) {
+        if (d1Alas <= 0 || d2Alas <= 0 || tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Diagonal alas dan tinggi prisma harus bernilai positif.");
+        }
+        // Memanfaatkan hitungLuas(d1, d2) dari superclass BelahKetupat
+        double luasAlasUntukHitung = super.hitungLuas(d1Alas, d2Alas); //
+        return luasAlasUntukHitung * tinggiPrisma;
     }
 
     @Override
     public double hitungLuasPermukaan() {
-        double luasAlas = super.hitungLuas();
-        double kelilingAlas = super.hitungKeliling();
-        return (2 * luasAlas) + (kelilingAlas * this.tinggiPrisma);
+        // Luas Permukaan Prisma = 2 * Luas Alas + Luas Selimut
+        // Luas Selimut = Keliling Alas * tinggiPrisma
+        double luasAlas = this.luas; // Mengambil luas alas dari atribut public di BelahKetupat
+        double kelilingAlas = this.keliling; // Mengambil keliling alas dari atribut public di BelahKetupat
+        double calculatedLuasPermukaan = (2 * luasAlas) + (kelilingAlas * this.tinggiPrisma);
+        return calculatedLuasPermukaan;
+    }
+    
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double d1Alas, double d2Alas, double tinggiPrisma) throws IllegalStateException {
+        if (d1Alas <= 0 || d2Alas <= 0 || tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Diagonal alas dan tinggi prisma harus bernilai positif.");
+        }
+        
+        // Memanfaatkan hitungLuas(d1, d2) dari superclass BelahKetupat untuk luas alas
+        double luasAlasUntukHitung = super.hitungLuas(d1Alas, d2Alas); //
+
+        // Untuk keliling, kita perlu sisi. Sisi belah ketupat dari diagonal adalah sqrt((d1/2)^2 + (d2/2)^2)
+        double sisiDihitung = Math.sqrt(Math.pow(d1Alas / 2.0, 2) + Math.pow(d2Alas / 2.0, 2));
+        if (Double.isNaN(sisiDihitung) || sisiDihitung <= 0) {
+             throw new IllegalStateException("Perhitungan sisi dari diagonal menghasilkan nilai tidak valid untuk keliling.");
+        }
+        // Memanfaatkan hitungKeliling(s) dari superclass BelahKetupat
+        double kelilingAlasUntukHitung = super.hitungKeliling(sisiDihitung); //
+        
+        return (2 * luasAlasUntukHitung) + (kelilingAlasUntukHitung * tinggiPrisma);
     }
 }

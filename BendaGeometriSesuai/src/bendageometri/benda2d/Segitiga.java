@@ -9,7 +9,7 @@ package bendageometri.benda2d;
  * @author nbnrc
  */
 public class Segitiga extends Benda2D {
-    public final double alas;
+    public double alas;
     public double tinggi;
     public double sisiB;
     public double sisiC;

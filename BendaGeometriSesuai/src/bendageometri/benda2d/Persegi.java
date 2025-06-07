@@ -9,7 +9,7 @@ package bendageometri.benda2d;
  * @author nbnrc
  */
 public class Persegi extends Benda2D {
-    public final double sisi;
+    public double sisi;
     public double luas;
     public double keliling;
 
