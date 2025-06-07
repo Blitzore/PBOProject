@@ -157,14 +157,32 @@ public class MainGeometri {
                     break;
                     
                 case 7:
-                    System.out.print("Masukkan diagonal 1 belah ketupat: ");
-                    double d1 = scanner.nextDouble();
-                    System.out.print("Masukkan diagonal 2 belah ketupat: ");
-                    double d2 = scanner.nextDouble();
+                System.out.print("Masukkan diagonal 1 belah ketupat: ");
+                double d1 = scanner.nextDouble();
+                System.out.print("Masukkan diagonal 2 belah ketupat: ");
+                double d2 = scanner.nextDouble();
+                try {
+                    // Gunakan konstruktor yang hanya menerima diagonal untuk kemudahan
                     BelahKetupat bk = new BelahKetupat(d1, d2);
-                    System.out.printf("Luas: %.2f\n", bk.hitungLuas());
-                    System.out.printf("Keliling: %.2f\n", bk.hitungKeliling());
-                    break;
+                    System.out.printf("Luas: %.2f\n", bk.luas); // Mengakses atribut luas
+                    System.out.printf("Keliling: %.2f\n", bk.keliling); // Mengakses atribut keliling
+
+//                    // Contoh penggunaan metode overloading untuk luas
+//                    System.out.print("Masukkan diagonal 1 sementara untuk luas: ");
+//                    double d1SementaraLuas = scanner.nextDouble();
+//                    System.out.print("Masukkan diagonal 2 sementara untuk luas: ");
+//                    double d2SementaraLuas = scanner.nextDouble();
+//                    System.out.printf("Luas (sementara): %.2f\n", bk.hitungLuas(d1SementaraLuas, d2SementaraLuas));
+//
+//                    // Contoh penggunaan metode overloading untuk keliling
+//                    System.out.print("Masukkan sisi sementara untuk keliling: ");
+//                    double sSementaraKeliling = scanner.nextDouble();
+//                    System.out.printf("Keliling (sementara): %.2f\n", bk.hitungKeliling(sSementaraKeliling));
+
+                } catch (IllegalArgumentException | IllegalStateException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+                break;
                     
                 case 8:
                     System.out.print("Masukkan diagonal 1 layang-layang: ");
@@ -422,16 +440,41 @@ public class MainGeometri {
                     break;
                     
                 case 13: // Prisma Belah Ketupat
-                    System.out.print("Masukkan diagonal 1: ");
-                    double d1BK = scanner.nextDouble();
-                    System.out.print("Masukkan diagonal 2: ");
-                    double d2BK = scanner.nextDouble();
-                    System.out.print("Masukkan tinggi prisma: ");
-                    double tinggiPrismaBK = scanner.nextDouble();
+                System.out.print("Masukkan diagonal 1: ");
+                double d1BK = scanner.nextDouble();
+                System.out.print("Masukkan diagonal 2: ");
+                double d2BK = scanner.nextDouble();
+                System.out.print("Masukkan tinggi prisma: ");
+                double tinggiPrismaBK = scanner.nextDouble();
+                try {
                     PrismaBelahKetupat prismaBK = new PrismaBelahKetupat(d1BK, d2BK, tinggiPrismaBK);
-                    System.out.printf("Volume: %.2f\n", prismaBK.hitungVolume());
-                    System.out.printf("Luas Permukaan: %.2f\n", prismaBK.hitungLuasPermukaan());
-                    break;
+                    System.out.printf("Volume: %.2f\n", prismaBK.getVolume());
+                    System.out.printf("Luas Permukaan: %.2f\n", prismaBK.getLuasPermukaan());
+
+//                    // Contoh penggunaan metode overloading untuk volume
+//                    System.out.println("\n--- Perhitungan sementara Volume Prisma Belah Ketupat ---");
+//                    System.out.print("Masukkan diagonal 1 sementara: ");
+//                    double d1SementaraVol = scanner.nextDouble();
+//                    System.out.print("Masukkan diagonal 2 sementara: ");
+//                    double d2SementaraVol = scanner.nextDouble();
+//                    System.out.print("Masukkan tinggi prisma sementara: ");
+//                    double tinggiPrismaSementaraVol = scanner.nextDouble();
+//                    System.out.printf("Volume (sementara): %.2f\n", prismaBK.hitungVolume(d1SementaraVol, d2SementaraVol, tinggiPrismaSementaraVol));
+//
+//                    // Contoh penggunaan metode overloading untuk luas permukaan
+//                    System.out.println("\n--- Perhitungan sementara Luas Permukaan Prisma Belah Ketupat ---");
+//                    System.out.print("Masukkan diagonal 1 sementara: ");
+//                    double d1SementaraLP = scanner.nextDouble();
+//                    System.out.print("Masukkan diagonal 2 sementara: ");
+//                    double d2SementaraLP = scanner.nextDouble();
+//                    System.out.print("Masukkan tinggi prisma sementara: ");
+//                    double tinggiPrismaSementaraLP = scanner.nextDouble();
+//                    System.out.printf("Luas Permukaan (sementara): %.2f\n", prismaBK.hitungLuasPermukaan(d1SementaraLP, d2SementaraLP, tinggiPrismaSementaraLP));
+
+                } catch (IllegalArgumentException | IllegalStateException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+                break;
                     
                 case 14: // Prisma Layang-Layang
                     System.out.print("Masukkan diagonal 1: ");
@@ -562,16 +605,41 @@ public class MainGeometri {
                     break;
                     
                 case 20: // Limas Belah Ketupat
-                    System.out.print("Masukkan diagonal 1: ");
-                    double d1LimasBK = scanner.nextDouble();
-                    System.out.print("Masukkan diagonal 2: ");
-                    double d2LimasBK = scanner.nextDouble();
-                    System.out.print("Masukkan tinggi limas: ");
-                    double tinggiLimasBK = scanner.nextDouble();
+                System.out.print("Masukkan diagonal 1: ");
+                double d1LimasBK = scanner.nextDouble();
+                System.out.print("Masukkan diagonal 2: ");
+                double d2LimasBK = scanner.nextDouble();
+                System.out.print("Masukkan tinggi limas: ");
+                double tinggiLimasBK = scanner.nextDouble();
+                try {
                     LimasBelahKetupat limasBK = new LimasBelahKetupat(d1LimasBK, d2LimasBK, tinggiLimasBK);
-                    System.out.printf("Volume: %.2f\n", limasBK.hitungVolume());
-                    System.out.printf("Luas Permukaan (perkiraan): %.2f\n", limasBK.hitungLuasPermukaan());
-                    break;
+                    System.out.printf("Volume: %.2f\n", limasBK.getVolume());
+                    System.out.printf("Luas Permukaan: %.2f\n", limasBK.getLuasPermukaan());
+
+//                    // Contoh penggunaan metode overloading untuk volume
+//                    System.out.println("\n--- Perhitungan sementara Volume Limas Belah Ketupat ---");
+//                    System.out.print("Masukkan diagonal 1 sementara: ");
+//                    double d1SementaraVol = scanner.nextDouble();
+//                    System.out.print("Masukkan diagonal 2 sementara: ");
+//                    double d2SementaraVol = scanner.nextDouble();
+//                    System.out.print("Masukkan tinggi limas sementara: ");
+//                    double tinggiLimasSementaraVol = scanner.nextDouble();
+//                    System.out.printf("Volume (sementara): %.2f\n", limasBK.hitungVolume(d1SementaraVol, d2SementaraVol, tinggiLimasSementaraVol));
+//
+//                    // Contoh penggunaan metode overloading untuk luas permukaan
+//                    System.out.println("\n--- Perhitungan sementara Luas Permukaan Limas Belah Ketupat ---");
+//                    System.out.print("Masukkan diagonal 1 sementara: ");
+//                    double d1SementaraLP = scanner.nextDouble();
+//                    System.out.print("Masukkan diagonal 2 sementara: ");
+//                    double d2SementaraLP = scanner.nextDouble();
+//                    System.out.print("Masukkan tinggi limas sementara: ");
+//                    double tinggiLimasSementaraLP = scanner.nextDouble();
+//                    System.out.printf("Luas Permukaan (sementara): %.2f\n", limasBK.hitungLuasPermukaan(d1SementaraLP, d2SementaraLP, tinggiLimasSementaraLP));
+
+                } catch (IllegalArgumentException | IllegalStateException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+                break;
                     
                 case 21: // Limas Layang-Layang
                     System.out.print("Masukkan diagonal 1: ");
