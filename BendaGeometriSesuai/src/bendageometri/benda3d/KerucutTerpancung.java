@@ -65,7 +65,7 @@ public class KerucutTerpancung extends Lingkaran { // Mewarisi Lingkaran untuk a
     }
 
     @Override
-    public double hitungVolume() {
+    public synchronized double hitungVolume() {
         double R = getJariJariAlasBawah();
         double r = this.jariJariAtas;
         double t = this.tinggiKerucutTerpancung;
@@ -73,7 +73,7 @@ public class KerucutTerpancung extends Lingkaran { // Mewarisi Lingkaran untuk a
     }
 
     @Override
-    public double hitungLuasPermukaan() {
+    public synchronized double hitungLuasPermukaan() {
         double luasAlasBawah = super.hitungLuas(); // Dari Lingkaran (alas bawah)
         double luasAlasAtas = hitungLuasAlasAtas();
 

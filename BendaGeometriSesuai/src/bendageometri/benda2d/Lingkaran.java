@@ -2,8 +2,7 @@ package bendageometri.benda2d;
 
 import java.util.concurrent.*;
 
-public class Lingkaran extends Benda2D {
-
+public class Lingkaran extends Benda2D implements Runnable {
     // ✅ Custom Exception
     public static class PerhitunganLingkaranException extends RuntimeException {
         public PerhitunganLingkaranException(String message, Throwable cause) {
@@ -14,14 +13,12 @@ public class Lingkaran extends Benda2D {
     public final double jariJari;
     public volatile double luas = -1;
     public volatile double keliling = -1;
-    public final ExecutorService executor;
 
     public Lingkaran(double jariJari) {
         if (jariJari <= 0) {
             throw new IllegalArgumentException("Jari-jari harus bernilai positif.");
         }
         this.jariJari = jariJari;
-        this.executor = Executors.newFixedThreadPool(2);
     }
 
     public double getJariJari() {
@@ -30,54 +27,40 @@ public class Lingkaran extends Benda2D {
 
     @Override
     public synchronized double hitungLuas() {
-        Future<Double> future = executor.submit(() -> Math.PI * jariJari * jariJari);
-        try {
-            luas = future.get();
-            return luas;
-        } catch (InterruptedException | ExecutionException e) {
-            luas = -1; // Tandai error
-            System.err.println("❌ Error menghitung luas lingkaran: " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung luas lingkaran", e);
-        }
+        this.luas = Math.PI * jariJari * jariJari;
+        return this.luas;
     }
-    public  synchronized double hitungLuas(double jari) {
-        Future<Double> future = executor.submit(() -> Math.PI * jari * jari);
-        try {
-            luas = future.get();
-            return luas;
-        } catch (InterruptedException | ExecutionException e) {
-            luas = -1;
-            System.err.println("❌ Error menghitung luas lingkaran (dengan parameter): " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung luas lingkaran (dengan parameter)", e);
-        }
+
+    public synchronized double hitungLuas(double jari) {
+        this.luas = Math.PI * jari * jari;
+        return this.luas;
     }
 
     @Override
-    public  synchronized double hitungKeliling() {
-        Future<Double> future = executor.submit(() -> 2 * Math.PI * jariJari);
-        try {
-            keliling = future.get();
-            return keliling;
-        } catch (InterruptedException | ExecutionException e) {
-            keliling = -1;
-            System.err.println("❌ Error menghitung keliling lingkaran: " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung keliling lingkaran", e);
-        }
+    public synchronized double hitungKeliling() {
+        this.keliling = 2 * Math.PI * jariJari;
+        return this.keliling;
     }
 
-    public  synchronized double hitungKeliling(double jari) {
-        Future<Double> future = executor.submit(() -> 2 * Math.PI * jari);
-        try {
-            keliling = future.get();
-            return keliling;
-        } catch (InterruptedException | ExecutionException e) {
-            keliling = -1;
-            System.err.println("❌ Error menghitung keliling lingkaran (dengan parameter): " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung keliling lingkaran (dengan parameter)", e);
-        }
+    public synchronized double hitungKeliling(double jari) {
+        this.keliling = 2 * Math.PI * jari;
+        return this.keliling;
     }
-    
-    public void shutdown() {
-        executor.shutdown();
+
+    @Override
+    public synchronized void run() {
+        try {
+            // Tunggu notifikasi dari thread sebelumnya
+            wait();
+
+            System.out.println("[Lingkaran] Luas: " + hitungLuas());
+            System.out.println("[Lingkaran] Keliling: " + hitungKeliling());
+
+            // Beri notifikasi ke thread berikutnya
+            notifyAll();
+        } catch (InterruptedException e) {
+            System.err.println("❌ Error pada thread Lingkaran: " + e.getMessage());
+            throw new PerhitunganLingkaranException("Gagal menjalankan perhitungan lingkaran", e);
+        }
     }
 }
