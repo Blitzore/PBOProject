@@ -10,13 +10,13 @@ import bendageometri.benda2d.JajaranGenjang;
  *
  * @author nbnrc
  */
-public class LimasJajarGenjang extends JajarGenjang {
+public class LimasJajaranGenjang extends JajaranGenjang {
     private double volume;
     private double luasPermukaan;
     private double tinggiLimas;
     
     // Konstruktor utama
-    public LimasJajarGenjang(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiLimas) throws IllegalArgumentException {
+    public LimasJajaranGenjang(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiLimas) throws IllegalArgumentException {
         super(alas, sisiMiring, tinggiJajarGenjang); // Memanggil konstruktor JajarGenjang
         
         if (tinggiLimas <= 0) {

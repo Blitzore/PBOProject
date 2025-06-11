@@ -34,7 +34,7 @@ public class JuringLingkaran extends Lingkaran {
     }
 
     @Override
-    public double hitungLuas() {
+    public synchronized double hitungLuas() {
         Future<Double> future = executor.submit(() -> {
             if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
                 System.err.println("❌ Tidak bisa menghitung luas: sudut tidak valid");
@@ -52,7 +52,7 @@ public class JuringLingkaran extends Lingkaran {
         }
     }
 
-    public double hitungLuas(double jari) {
+    public synchronized double hitungLuas(double jari) {
         Future<Double> future = executor.submit(() -> {
             if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
                 System.err.println("❌ Tidak bisa menghitung luas (param): sudut tidak valid");
@@ -71,7 +71,7 @@ public class JuringLingkaran extends Lingkaran {
     }
 
     @Override
-    public double hitungKeliling() {
+    public synchronized double hitungKeliling() {
         Future<Double> future = executor.submit(() -> {
             if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
                 System.err.println("❌ Tidak bisa menghitung keliling: sudut tidak valid");

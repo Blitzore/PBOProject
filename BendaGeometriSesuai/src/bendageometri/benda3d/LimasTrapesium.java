@@ -26,7 +26,7 @@ public class LimasTrapesium extends Trapesium { // Mewarisi Trapesium untuk alas
                           double tinggiAlasTrapesium, 
                           double sisiMiringSamaAlas, 
                           double tinggiLimas) {
-        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiringSamaAlas);
+        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiringSamaAlas, tinggiLimas);
         setTinggiLimas(tinggiLimas);
     }
 
@@ -83,10 +83,10 @@ public class LimasTrapesium extends Trapesium { // Mewarisi Trapesium untuk alas
         }
 
         double luasAlas = super.hitungLuas();
-        double luasSisiTegakAtas = 0.5 * getSisiAtas() * tstSisiAtas;
-        double luasSisiTegakBawah = 0.5 * getSisiBawah() * tstSisiBawah;
-        double luasSisiTegakMiring1 = 0.5 * getSisiMiring1() * tstSisiMiring1;
-        double luasSisiTegakMiring2 = 0.5 * getSisiMiring2() * tstSisiMiring2;
+        double luasSisiTegakAtas = 0.5 * super.sisiAtas * tstSisiAtas;
+        double luasSisiTegakBawah = 0.5 * super.sisiBawah * tstSisiBawah;
+        double luasSisiTegakMiring1 = 0.5 * super.sisiMiring1 * tstSisiMiring1;
+        double luasSisiTegakMiring2 = 0.5 * super.sisiMiring2 * tstSisiMiring2;
 
         return luasAlas + luasSisiTegakAtas + luasSisiTegakBawah + luasSisiTegakMiring1 + luasSisiTegakMiring2;
     }

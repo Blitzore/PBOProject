@@ -27,7 +27,7 @@ public class PrismaTrapesium extends Trapesium { // Mewarisi Trapesium untuk ala
                            double sisiMiringSamaAlas, 
                            double tinggiPrisma) {
         // Memanggil konstruktor Trapesium(sisiAtas, sisiBawah, tinggi, sisiMiringSama)
-        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiringSamaAlas); 
+        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiringSamaAlas, tinggiPrisma); 
         setTinggiPrisma(tinggiPrisma);
     }
 

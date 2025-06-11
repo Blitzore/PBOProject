@@ -9,13 +9,13 @@ import bendageometri.benda2d.JajaranGenjang;
  *
  * @author nbnrc
  */
-public class PrismaJajarGenjang extends JajarGenjang {
+public class PrismaJajaranGenjang extends JajaranGenjang {
     private double volume;
     private double luasPermukaan;
     private double tinggiPrisma;
     
     // Konstruktor utama
-    public PrismaJajarGenjang(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiPrisma) throws IllegalArgumentException {
+    public PrismaJajaranGenjang(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiPrisma) throws IllegalArgumentException {
         super(alas, sisiMiring, tinggiJajarGenjang); // Memanggil konstruktor JajarGenjang
         
         if (tinggiPrisma <= 0) {

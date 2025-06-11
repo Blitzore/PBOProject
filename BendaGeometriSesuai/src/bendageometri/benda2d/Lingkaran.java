@@ -29,7 +29,7 @@ public class Lingkaran extends Benda2D {
     }
 
     @Override
-    public double hitungLuas() {
+    public synchronized double hitungLuas() {
         Future<Double> future = executor.submit(() -> Math.PI * jariJari * jariJari);
         try {
             luas = future.get();
@@ -40,8 +40,7 @@ public class Lingkaran extends Benda2D {
             throw new PerhitunganLingkaranException("Gagal menghitung luas lingkaran", e);
         }
     }
-
-    public double hitungLuas(double jari) {
+    public  synchronized double hitungLuas(double jari) {
         Future<Double> future = executor.submit(() -> Math.PI * jari * jari);
         try {
             luas = future.get();
@@ -54,7 +53,7 @@ public class Lingkaran extends Benda2D {
     }
 
     @Override
-    public double hitungKeliling() {
+    public  synchronized double hitungKeliling() {
         Future<Double> future = executor.submit(() -> 2 * Math.PI * jariJari);
         try {
             keliling = future.get();
@@ -66,7 +65,7 @@ public class Lingkaran extends Benda2D {
         }
     }
 
-    public double hitungKeliling(double jari) {
+    public  synchronized double hitungKeliling(double jari) {
         Future<Double> future = executor.submit(() -> 2 * Math.PI * jari);
         try {
             keliling = future.get();
@@ -77,7 +76,7 @@ public class Lingkaran extends Benda2D {
             throw new PerhitunganLingkaranException("Gagal menghitung keliling lingkaran (dengan parameter)", e);
         }
     }
-
+    
     public void shutdown() {
         executor.shutdown();
     }

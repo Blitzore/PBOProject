@@ -8,14 +8,14 @@ package bendageometri.benda2d;
  *
  * @author nbnrc
  */
-public class JajarGenjang extends Benda2D implements Runnable {
+public class JajaranGenjang extends Benda2D implements Runnable {
     public double alas;
     public double sisiMiring;
     public double tinggi;
     public double luas;
     public double keliling;
     
-    public JajarGenjang(double alas, double sisiMiring, double tinggi) {
+    public JajaranGenjang(double alas, double sisiMiring, double tinggi) {
         if (alas <= 0 || sisiMiring <= 0 || tinggi <= 0) {
             throw new IllegalArgumentException("Alas, sisi miring, dan tinggi harus bernilai positif.");
         }

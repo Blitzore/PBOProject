@@ -53,19 +53,19 @@ public class LimasPersegiPanjang extends PersegiPanjang { // Mewarisi PersegiPan
 
         // Tinggi selimut (apotema) untuk segitiga dengan alas = panjangAlas
         // t_selimut1 = sqrt(tinggiLimas^2 + (lebarAlas/2)^2)
-        double tinggiSelimut1 = Math.sqrt(Math.pow(this.tinggiLimas, 2) + Math.pow(getLebar() / 2.0, 2));
+        double tinggiSelimut1 = Math.sqrt(Math.pow(this.tinggiLimas, 2) + Math.pow(super.lebar / 2.0, 2));
         if (Double.isNaN(tinggiSelimut1) || tinggiSelimut1 < 0) {
              throw new IllegalStateException("Perhitungan tinggi selimut 1 menghasilkan nilai tidak valid.");
         }
-        double luasDuaSisiTegak1 = 2 * (0.5 * getPanjang() * tinggiSelimut1); // atau getPanjang() * tinggiSelimut1
+        double luasDuaSisiTegak1 = 2 * (0.5 * super.panjang * tinggiSelimut1); // atau getPanjang() * tinggiSelimut1
 
         // Tinggi selimut (apotema) untuk segitiga dengan alas = lebarAlas
         // t_selimut2 = sqrt(tinggiLimas^2 + (panjangAlas/2)^2)
-        double tinggiSelimut2 = Math.sqrt(Math.pow(this.tinggiLimas, 2) + Math.pow(getPanjang() / 2.0, 2));
+        double tinggiSelimut2 = Math.sqrt(Math.pow(this.tinggiLimas, 2) + Math.pow(super.panjang / 2.0, 2));
         if (Double.isNaN(tinggiSelimut2) || tinggiSelimut2 < 0) {
              throw new IllegalStateException("Perhitungan tinggi selimut 2 menghasilkan nilai tidak valid.");
         }
-        double luasDuaSisiTegak2 = 2 * (0.5 * getLebar() * tinggiSelimut2); // atau getLebar() * tinggiSelimut2
+        double luasDuaSisiTegak2 = 2 * (0.5 * super.lebar * tinggiSelimut2); // atau getLebar() * tinggiSelimut2
         
         return luasAlas + luasDuaSisiTegak1 + luasDuaSisiTegak2;
     }
