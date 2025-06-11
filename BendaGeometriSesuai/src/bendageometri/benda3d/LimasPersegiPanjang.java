@@ -9,39 +9,54 @@ import bendageometri.benda2d.PersegiPanjang;
  *
  * @author nbnrc
  */
-public class LimasPersegiPanjang extends PersegiPanjang { // Mewarisi PersegiPanjang untuk alasnya
-    private double tinggiLimas; // Bisa mutable dengan setter
-
+public class LimasPersegiPanjang extends PersegiPanjang {
+    private double volume;
+    private double luasPermukaan;
+    private double tinggiLimas;
+    
     // Konstruktor utama
-    public LimasPersegiPanjang(double panjangAlas, double lebarAlas, double tinggiLimas) {
-        super(panjangAlas, lebarAlas); // Memanggil konstruktor PersegiPanjang
-                                       // Dimensi alas (panjangAlas, lebarAlas) menjadi immutable
-                                       // Validasi panjangAlas dan lebarAlas ditangani oleh PersegiPanjang
-        setTinggiLimas(tinggiLimas);   // Menggunakan setter untuk validasi tinggiLimas
+    public LimasPersegiPanjang(double panjang, double lebar, double tinggiLimas) throws IllegalArgumentException {
+        super(panjang, lebar); // Memanggil konstruktor PersegiPanjang
+        
+        if (tinggiLimas <= 0) {
+            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
+        }
+        
+        this.tinggiLimas = tinggiLimas;
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
+    }
+    
+    // Getter untuk volume
+    public double getVolume() {
+        return volume;
+    }
+    
+    // Getter untuk luasPermukaan
+    public double getLuasPermukaan() {
+        return luasPermukaan;
     }
     
     // Getter untuk tinggiLimas
     public double getTinggiLimas() {
         return tinggiLimas;
     }
-
-    // Setter untuk tinggiLimas dengan validasi
-    public void setTinggiLimas(double tinggiLimas) {
-        if (tinggiLimas <= 0) {
-            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
-        }
-        this.tinggiLimas = tinggiLimas;
-    }
-
-    // Getter untuk panjangAlas (yaitu getPanjang()) dan lebarAlas (yaitu getLebar())
-    // diwarisi dari PersegiPanjang (immutable)
-
+    
     @Override
     public double hitungVolume() {
-        // Volume Limas = (1/3) * Luas Alas (dari PersegiPanjang) * tinggiLimas
-        return (1.0 / 3.0) * super.hitungLuas() * this.tinggiLimas;
+        // Volume Limas = (1/3) * Luas Alas * tinggiLimas
+        return (1.0/3.0) * this.luas * this.tinggiLimas;
     }
-
+    
+    // Overloading untuk hitungVolume dengan parameter
+    public double hitungVolume(double panjang, double lebar, double tinggiLimas) {
+        if (panjang <= 0 || lebar <= 0 || tinggiLimas <= 0) {
+            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+        }
+        double luasAlas = panjang * lebar;
+        return (1.0/3.0) * luasAlas * tinggiLimas;
+    }
+    
     @Override
     public double hitungLuasPermukaan() {
         // Luas Permukaan Limas = Luas Alas + Luas Seluruh Sisi Tegak
