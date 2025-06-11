@@ -8,47 +8,45 @@ package bendageometri.benda2d;
  *
  * @author nbnrc
  */
-public class JajaranGenjang extends Benda2D {
-    private double alas;
-    private double tinggi;
-    private double sisiMiring;
-
-    // Konstruktor utama
-    public JajaranGenjang(double alas, double tinggi, double sisiMiring) {
-        if (alas <= 0 || tinggi <= 0 || sisiMiring <= 0) {
-            throw new IllegalArgumentException("Dimensi alas, tinggi, dan sisi miring jajaran genjang harus bernilai positif.");
+public class JajarGenjang extends Benda2D implements Runnable {
+    public double alas;
+    public double sisiMiring;
+    public double tinggi;
+    public double luas;
+    public double keliling;
+    
+    public JajarGenjang(double alas, double sisiMiring, double tinggi) {
+        if (alas <= 0 || sisiMiring <= 0 || tinggi <= 0) {
+            throw new IllegalArgumentException("Alas, sisi miring, dan tinggi harus bernilai positif.");
         }
-        if (sisiMiring < tinggi) {
-            throw new IllegalArgumentException("Sisi miring tidak boleh lebih pendek dari tinggi jajaran genjang.");
-        }
-
         this.alas = alas;
-        this.tinggi = tinggi;
         this.sisiMiring = sisiMiring;
+        this.tinggi = tinggi;
+        this.luas = hitungLuas();
+        this.keliling = hitungKeliling();
     }
-
-    // Getter
-    public double getAlas() {
-        return alas;
-    }
-
-    public double getTinggi() {
-        return tinggi;
-    }
-
-    public double getSisiMiring() {
-        return sisiMiring;
-    }
-
+    
     @Override
     public double hitungLuas() {
-        // Luas Jajaran Genjang = alas * tinggi
-        return this.alas * this.tinggi;
+        this.luas = this.alas * this.tinggi;
+        return this.luas;
     }
-
+    
     @Override
     public double hitungKeliling() {
-        // Keliling Jajaran Genjang = 2 * (alas + sisi miring)
-        return 2 * (this.alas + this.sisiMiring);
+        this.keliling = 2 * (this.alas + this.sisiMiring);
+        return this.keliling;
+    }
+    
+    @Override
+    public synchronized void run() {
+        try {
+            wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("[JajarGenjang] Luas: " + hitungLuas());
+        System.out.println("[JajarGenjang] Keliling: " + hitungKeliling());
+        notifyAll();
     }
 }
