@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package bendageometri.benda3d;
+
 import bendageometri.benda2d.Lingkaran;
 
 /**
@@ -10,9 +11,9 @@ import bendageometri.benda2d.Lingkaran;
  * @author nbnrc
  */
 public class KerucutTerpancung extends Lingkaran { // Mewarisi Lingkaran untuk alas bawah (R)
-    private final double jariJariAtas;            // Dibuat final
+    private final double jariJariAtas; // Dibuat final
     private final double tinggiKerucutTerpancung; // Dibuat final
-    private final double garisPelukis;            // Dibuat final
+    private final double garisPelukis; // Dibuat final
 
     // Konstruktor utama
     public KerucutTerpancung(double jariJariAlasBawah, double jariJariAlasAtas, double tinggi) {
@@ -31,13 +32,15 @@ public class KerucutTerpancung extends Lingkaran { // Mewarisi Lingkaran untuk a
         // Hitung garis pelukis (s = sqrt(t^2 + (R-r)^2))
         double selisihJariJari = getJariJari() - this.jariJariAtas; // getJariJari() adalah R (bawah)
         this.garisPelukis = Math.sqrt(Math.pow(this.tinggiKerucutTerpancung, 2) + Math.pow(selisihJariJari, 2));
-        
-        if (Double.isNaN(this.garisPelukis) || this.garisPelukis < 0 || (this.garisPelukis == 0 && !(getJariJari() == this.jariJariAtas && this.tinggiKerucutTerpancung == 0) )) {
-             // garisPelukis bisa 0 jika R=r dan tinggi=0 (degenerasi menjadi titik/garis), tapi tinggi sudah > 0
-             throw new IllegalStateException("Perhitungan garis pelukis menghasilkan nilai tidak valid dari dimensi yang diberikan.");
+
+        if (Double.isNaN(this.garisPelukis) || this.garisPelukis < 0 || (this.garisPelukis == 0
+                && !(getJariJari() == this.jariJariAtas && this.tinggiKerucutTerpancung == 0))) {
+            // garisPelukis bisa 0 jika R=r dan tinggi=0 (degenerasi menjadi titik/garis),
+            // tapi tinggi sudah > 0
+            throw new IllegalStateException(
+                    "Perhitungan garis pelukis menghasilkan nilai tidak valid dari dimensi yang diberikan.");
         }
     }
-    
 
     // Getter
     public double getJariJariAlasBawah() {
@@ -73,11 +76,11 @@ public class KerucutTerpancung extends Lingkaran { // Mewarisi Lingkaran untuk a
     public double hitungLuasPermukaan() {
         double luasAlasBawah = super.hitungLuas(); // Dari Lingkaran (alas bawah)
         double luasAlasAtas = hitungLuasAlasAtas();
-        
+
         double R = getJariJariAlasBawah();
         double r = this.jariJariAtas;
         double luasSelimut = Math.PI * (R + r) * this.garisPelukis;
-        
+
         return luasAlasBawah + luasAlasAtas + luasSelimut;
     }
 }

@@ -1,60 +1,90 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package bendageometri.benda3d;
+
 import bendageometri.benda2d.Lingkaran;
+
 /**
- *
- * @author nbnrc
+ * Representasi objek Kerucut yang merupakan bangun ruang 3D berbasis alas
+ * lingkaran.
  */
-public class Kerucut extends Lingkaran { // Mewarisi Lingkaran untuk alas kerucut
-    private double tinggiKerucut;
-    private final double garisPelukis; // Dibuat final karena dihitung sekali saat konstruksi
+public class Kerucut extends Lingkaran {
 
-    // Konstruktor utama
-    public Kerucut(double jariJariAlas, double tinggiKerucut) {
-        super(jariJariAlas); // Memanggil konstruktor Lingkaran untuk jari-jari alas
-                             // Validasi jariJariAlas ditangani oleh Lingkaran
-
-        if (tinggiKerucut <= 0) {
-            throw new IllegalArgumentException("Tinggi kerucut harus bernilai positif.");
-        }
-        this.tinggiKerucut = tinggiKerucut;
-
-        // Hitung garis pelukis (s = sqrt(r^2 + t^2))
-        // getJariJari() akan mengembalikan jari-jari alas dari superclass Lingkaran
-        this.garisPelukis = Math.sqrt(Math.pow(getJariJari(), 2) + Math.pow(this.tinggiKerucut, 2));
-        if (Double.isNaN(this.garisPelukis) || this.garisPelukis <=0) { // Validasi hasil perhitungan
-             throw new IllegalStateException("Perhitungan garis pelukis menghasilkan nilai tidak valid.");
+    // ✅ Custom exception untuk error perhitungan
+    public static class PerhitunganKerucutException extends RuntimeException {
+        public PerhitunganKerucutException(String message) {
+            super(message);
         }
     }
 
-    // Getter untuk tinggiKerucut
+    public final double tinggiKerucut;
+    public final double garisPelukis; // Dihitung sekali saat konstruktor
+
+    /**
+     * Konstruktor Kerucut
+     * 
+     * @param jariJariAlas  Jari-jari alas kerucut (harus > 0)
+     * @param tinggiKerucut Tinggi kerucut (harus > 0)
+     */
+    public Kerucut(double jariJari, double tinggiKerucut) {
+        super(jariJari); // Validasi jari-jari dilakukan di Lingkaran
+
+        if (tinggiKerucut <= 0) {
+            throw new IllegalArgumentException("Tinggi kerucut harus lebih dari 0.");
+        }
+
+        this.tinggiKerucut = tinggiKerucut;
+
+        // Hitung garis pelukis (s = sqrt(r^2 + t^2))
+        double r = super.jariJari;
+        this.garisPelukis = Math.sqrt(r * r + tinggiKerucut * tinggiKerucut);
+
+        if (Double.isNaN(this.garisPelukis) || this.garisPelukis <= 0) {
+            throw new PerhitunganKerucutException("Perhitungan garis pelukis tidak valid.");
+        }
+    }
+
     public double getTinggiKerucut() {
         return tinggiKerucut;
     }
 
-    // Getter untuk garisPelukis
     public double getGarisPelukis() {
         return garisPelukis;
     }
-    
-
-    // Getter untuk jariJariAlas diwarisi dari Lingkaran sebagai getJariJari()
 
     @Override
     public double hitungVolume() {
-        // Volume Kerucut = (1/3) * Luas Alas (dari Lingkaran) * tinggiKerucut
-        return (1.0 / 3.0) * super.hitungLuas() * this.tinggiKerucut;
+        try {
+            return (1.0 / 3.0) * super.luas * tinggiKerucut;
+        } catch (Exception e) {
+            throw new PerhitunganKerucutException("Gagal menghitung volume kerucut: " + e.getMessage());
+        }
     }
 
     @Override
     public double hitungLuasPermukaan() {
-        // Luas Permukaan Kerucut = Luas Alas + Luas Selimut
-        // Luas Selimut = PI * r * s (s adalah garis pelukis)
-        double luasAlas = super.hitungLuas();
-        double luasSelimut = Math.PI * getJariJari() * this.garisPelukis;
-        return luasAlas + luasSelimut;
+        try {
+            double luasAlas = super.luas;
+            double luasSelimut = Math.PI * super.jariJari * garisPelukis;
+            return luasAlas + luasSelimut;
+        } catch (Exception e) {
+            throw new PerhitunganKerucutException("Gagal menghitung luas permukaan kerucut: " + e.getMessage());
+        }
+    }
+
+    public double hitungVolume(double jariBaru) {
+        try {
+            return (1.0 / 3.0) * super.hitungLuas(jariBaru) * tinggiKerucut;
+        } catch (Exception e) {
+            throw new PerhitunganKerucutException("Gagal menghitung volume kerucut: " + e.getMessage());
+        }
+    }
+
+    public double hitungLuasPermukaan(double jariBaru) {
+        try {
+            double luasAlas = super.hitungLuas(jariBaru);
+            double luasSelimut = Math.PI * jariBaru * garisPelukis;
+            return luasAlas + luasSelimut;
+        } catch (Exception e) {
+            throw new PerhitunganKerucutException("Gagal menghitung luas permukaan kerucut: " + e.getMessage());
+        }
     }
 }

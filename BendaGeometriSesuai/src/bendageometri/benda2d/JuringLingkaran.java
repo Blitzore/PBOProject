@@ -1,47 +1,115 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package bendageometri.benda2d;
 
-/**
- *
- * @author nbnrc
- */
-public class JuringLingkaran extends Lingkaran {
-    private double sudutPusatDerajat; // Sudut pusat dalam derajat
+import java.util.concurrent.*;
 
-    // Konstruktor utama
+public class JuringLingkaran extends Lingkaran {
+
+    // ✅ Custom Exception
+    public static class PerhitunganJuringException extends RuntimeException {
+        public PerhitunganJuringException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    private volatile double sudutPusatDerajat;
+    private final ExecutorService executor;
+
     public JuringLingkaran(double jariJari, double sudutPusatDerajat) {
-        super(jariJari); // Memanggil konstruktor Lingkaran
+        super(jariJari);
+        this.executor = Executors.newFixedThreadPool(2);
         setSudutPusatDerajat(sudutPusatDerajat);
     }
 
-
-    // Getter untuk sudutPusatDerajat
     public double getSudutPusatDerajat() {
         return sudutPusatDerajat;
     }
 
-    // Setter untuk sudutPusatDerajat dengan validasi
     public void setSudutPusatDerajat(double sudutPusatDerajat) {
         if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
-            throw new IllegalArgumentException("Sudut pusat juring harus lebih besar dari 0 dan kurang dari 360 derajat.");
+            System.err.println("❌ Sudut tidak valid untuk juring: " + sudutPusatDerajat);
+            this.sudutPusatDerajat = -1;
+        } else {
+            this.sudutPusatDerajat = sudutPusatDerajat;
         }
-        this.sudutPusatDerajat = sudutPusatDerajat;
     }
 
     @Override
     public double hitungLuas() {
-        // Luas juring = (sudutPusatDerajat / 360.0) * LuasLingkaranInduk
-        return (this.sudutPusatDerajat / 360.0) * super.hitungLuas();
+        Future<Double> future = executor.submit(() -> {
+            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
+                System.err.println("❌ Tidak bisa menghitung luas: sudut tidak valid");
+                return -1.0;
+            }
+            return (sudutPusatDerajat / 360.0) * super.luas;
+        });
+        try {
+            luas = future.get();
+            return luas;
+        } catch (InterruptedException | ExecutionException e) {
+            luas = -1;
+            System.err.println("❌ Gagal menghitung luas juring: " + e.getMessage());
+            throw new PerhitunganJuringException("Gagal menghitung luas juring", e);
+        }
+    }
+
+    public double hitungLuas(double jari) {
+        Future<Double> future = executor.submit(() -> {
+            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
+                System.err.println("❌ Tidak bisa menghitung luas (param): sudut tidak valid");
+                return -1.0;
+            }
+            return (sudutPusatDerajat / 360.0) * super.hitungLuas(jari);
+        });
+        try {
+            luas = future.get();
+            return luas;
+        } catch (InterruptedException | ExecutionException e) {
+            luas = -1;
+            System.err.println("❌ Gagal menghitung luas juring (param): " + e.getMessage());
+            throw new PerhitunganJuringException("Gagal menghitung luas juring (dengan parameter)", e);
+        }
     }
 
     @Override
     public double hitungKeliling() {
-        // Keliling juring = 2 * jari-jari + panjang busur
-        // Panjang busur = (sudutPusatDerajat / 360.0) * KelilingLingkaranInduk
-        double panjangBusur = (this.sudutPusatDerajat / 360.0) * super.hitungKeliling();
-        return (2 * getJariJari()) + panjangBusur;
+        Future<Double> future = executor.submit(() -> {
+            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
+                System.err.println("❌ Tidak bisa menghitung keliling: sudut tidak valid");
+                return -1.0;
+            }
+            double panjangBusur = (sudutPusatDerajat / 360.0) * super.keliling;
+            return 2 * getJariJari() + panjangBusur;
+        });
+        try {
+            keliling = future.get();
+            return keliling;
+        } catch (InterruptedException | ExecutionException e) {
+            keliling = -1;
+            System.err.println("❌ Gagal menghitung keliling juring: " + e.getMessage());
+            throw new PerhitunganJuringException("Gagal menghitung keliling juring", e);
+        }
+    }
+
+    public double hitungKeliling(double jari) {
+        Future<Double> future = executor.submit(() -> {
+            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
+                System.err.println("❌ Tidak bisa menghitung keliling (param): sudut tidak valid");
+                return -1.0;
+            }
+            double panjangBusur = (sudutPusatDerajat / 360.0) * super.hitungKeliling(jari);
+            return 2 * jari + panjangBusur;
+        });
+        try {
+            keliling = future.get();
+            return keliling;
+        } catch (InterruptedException | ExecutionException e) {
+            keliling = -1;
+            System.err.println("❌ Gagal menghitung keliling juring (param): " + e.getMessage());
+            throw new PerhitunganJuringException("Gagal menghitung keliling juring (dengan parameter)", e);
+        }
+    }
+
+    public void shutdown() {
+        executor.shutdown();
     }
 }
