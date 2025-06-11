@@ -9,41 +9,69 @@ import bendageometri.benda2d.JajaranGenjang;
  *
  * @author nbnrc
  */
-public class PrismaJajaranGenjang extends JajaranGenjang { // Mewarisi JajaranGenjang untuk alasnya
-    private double tinggiPrisma; // Bisa mutable dengan setter
-
+public class PrismaJajarGenjang extends JajarGenjang {
+    private double volume;
+    private double luasPermukaan;
+    private double tinggiPrisma;
+    
     // Konstruktor utama
-    public PrismaJajaranGenjang(double alasJajaranGenjang, double tinggiAlasJajaranGenjang, 
-                                double sisiMiringAlas, double tinggiPrisma) {
-        super(alasJajaranGenjang, tinggiAlasJajaranGenjang, sisiMiringAlas);
-        // Dimensi alas menjadi immutable dan validasinya ditangani oleh JajaranGenjang
-        setTinggiPrisma(tinggiPrisma); // Menggunakan setter untuk validasi tinggiPrisma
+    public PrismaJajarGenjang(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiPrisma) throws IllegalArgumentException {
+        super(alas, sisiMiring, tinggiJajarGenjang); // Memanggil konstruktor JajarGenjang
+        
+        if (tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Tinggi prisma harus bernilai positif.");
+        }
+        
+        this.tinggiPrisma = tinggiPrisma;
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
-
+    
+    // Getter untuk volume
+    public double getVolume() {
+        return volume;
+    }
+    
+    // Getter untuk luasPermukaan
+    public double getLuasPermukaan() {
+        return luasPermukaan;
+    }
+    
     // Getter untuk tinggiPrisma
     public double getTinggiPrisma() {
         return tinggiPrisma;
     }
-
-    // Setter untuk tinggiPrisma dengan validasi
-    public void setTinggiPrisma(double tinggiPrisma) {
-        if (tinggiPrisma <= 0) {
-            throw new IllegalArgumentException("Tinggi prisma harus bernilai positif.");
-        }
-        this.tinggiPrisma = tinggiPrisma;
-    }
-
-    // Getter untuk properti alas diwarisi dari JajaranGenjang (immutable)
-
+    
     @Override
     public double hitungVolume() {
-        return super.hitungLuas() * this.tinggiPrisma;
+        // Volume Prisma = Luas Alas * tinggiPrisma
+        return this.luas * this.tinggiPrisma;
     }
-
+    
+    // Overloading untuk hitungVolume dengan parameter
+    public double hitungVolume(double alas, double tinggiJajarGenjang, double tinggiPrisma) {
+        if (alas <= 0 || tinggiJajarGenjang <= 0 || tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+        }
+        double luasAlas = alas * tinggiJajarGenjang;
+        return luasAlas * tinggiPrisma;
+    }
+    
     @Override
     public double hitungLuasPermukaan() {
-        double luasAlas = super.hitungLuas();
-        double kelilingAlas = super.hitungKeliling();
+        // Luas Permukaan = 2 * Luas Alas + Luas Selimut
+        double luasAlas = this.luas;
+        double kelilingAlas = this.keliling;
         return (2 * luasAlas) + (kelilingAlas * this.tinggiPrisma);
+    }
+    
+    // Overloading untuk hitungLuasPermukaan dengan parameter
+    public double hitungLuasPermukaan(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiPrisma) {
+        if (alas <= 0 || sisiMiring <= 0 || tinggiJajarGenjang <= 0 || tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+        }
+        double luasAlas = alas * tinggiJajarGenjang;
+        double kelilingAlas = 2 * (alas + sisiMiring);
+        return (2 * luasAlas) + (kelilingAlas * tinggiPrisma);
     }
 }
