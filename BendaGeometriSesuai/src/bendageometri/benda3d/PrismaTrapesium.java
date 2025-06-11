@@ -8,56 +8,69 @@ import bendageometri.benda2d.Trapesium;
  *
  * @author nbnrc
  */
-public class PrismaTrapesium extends Trapesium { // Mewarisi Trapesium untuk alasnya
-    private double tinggiPrisma; // Bisa mutable dengan setter
-
+public class PrismaTrapesium extends Trapesium {
+    private double volume;
+    private double luasPermukaan;
+    private double tinggiPrisma;
+    
     // Konstruktor utama
-    public PrismaTrapesium(double sisiAtasAlas, double sisiBawahAlas, 
-                           double tinggiAlasTrapesium, 
-                           double sisiMiring1Alas, double sisiMiring2Alas, 
-                           double tinggiPrisma) {
-        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiring1Alas, sisiMiring2Alas);
-        // Dimensi alas menjadi immutable dan validasinya ditangani oleh Trapesium
-        setTinggiPrisma(tinggiPrisma); // Menggunakan setter untuk validasi tinggiPrisma
+    public PrismaTrapesium(double sisiAtas, double sisiBawah, double tinggiTrapesium, double sisiMiring1, double sisiMiring2, double tinggiPrisma) throws IllegalArgumentException {
+        super(sisiAtas, sisiBawah, tinggiTrapesium, sisiMiring1, sisiMiring2); // Memanggil konstruktor Trapesium
+        
+        if (tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Tinggi prisma harus bernilai positif.");
+        }
+        
+        this.tinggiPrisma = tinggiPrisma;
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
-
-    // Overloaded constructor: untuk Prisma Trapesium Sama Kaki
-    public PrismaTrapesium(double sisiAtasAlas, double sisiBawahAlas, 
-                           double tinggiAlasTrapesium, 
-                           double sisiMiringSamaAlas, 
-                           double tinggiPrisma) {
-        // Memanggil konstruktor Trapesium(sisiAtas, sisiBawah, tinggi, sisiMiringSama)
-        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiringSamaAlas); 
-        setTinggiPrisma(tinggiPrisma);
+    
+    // Getter untuk volume
+    public double getVolume() {
+        return volume;
     }
-
+    
+    // Getter untuk luasPermukaan
+    public double getLuasPermukaan() {
+        return luasPermukaan;
+    }
+    
     // Getter untuk tinggiPrisma
     public double getTinggiPrisma() {
         return tinggiPrisma;
     }
-
-    // Setter untuk tinggiPrisma dengan validasi
-    public void setTinggiPrisma(double tinggiPrisma) {
-        if (tinggiPrisma <= 0) {
-            throw new IllegalArgumentException("Tinggi prisma harus bernilai positif.");
-        }
-        this.tinggiPrisma = tinggiPrisma;
-    }
-
-    // Getter untuk properti alas diwarisi dari Trapesium (immutable)
-
+    
     @Override
     public double hitungVolume() {
-        // Volume Prisma = Luas Alas (dari Trapesium) * tinggiPrisma
-        return super.hitungLuas() * this.tinggiPrisma;
+        // Volume Prisma = Luas Alas * tinggiPrisma
+        return this.luas * this.tinggiPrisma;
     }
-
+    
+    // Overloading untuk hitungVolume dengan parameter
+    public double hitungVolume(double sisiAtas, double sisiBawah, double tinggiTrapesium, double tinggiPrisma) {
+        if (sisiAtas <= 0 || sisiBawah <= 0 || tinggiTrapesium <= 0 || tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+        }
+        double luasAlas = 0.5 * (sisiAtas + sisiBawah) * tinggiTrapesium;
+        return luasAlas * tinggiPrisma;
+    }
+    
     @Override
     public double hitungLuasPermukaan() {
-        // Luas Permukaan Prisma = 2 * Luas Alas + Luas Selimut
-        // Luas Selimut = Keliling Alas * tinggiPrisma
-        double luasAlas = super.hitungLuas();
-        double kelilingAlas = super.hitungKeliling();
+        // Luas Permukaan = 2 * Luas Alas + Luas Selimut
+        double luasAlas = this.luas;
+        double kelilingAlas = this.keliling;
         return (2 * luasAlas) + (kelilingAlas * this.tinggiPrisma);
+    }
+    
+    // Overloading untuk hitungLuasPermukaan dengan parameter
+    public double hitungLuasPermukaan(double sisiAtas, double sisiBawah, double tinggiTrapesium, double sisiMiring1, double sisiMiring2, double tinggiPrisma) {
+        if (sisiAtas <= 0 || sisiBawah <= 0 || tinggiTrapesium <= 0 || sisiMiring1 <= 0 || sisiMiring2 <= 0 || tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+        }
+        double luasAlas = 0.5 * (sisiAtas + sisiBawah) * tinggiTrapesium;
+        double kelilingAlas = sisiAtas + sisiBawah + sisiMiring1 + sisiMiring2;
+        return (2 * luasAlas) + (kelilingAlas * tinggiPrisma);
     }
 }
