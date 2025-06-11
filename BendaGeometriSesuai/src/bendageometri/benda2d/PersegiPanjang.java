@@ -8,40 +8,43 @@ package bendageometri.benda2d;
  *
  * @author nbnrc
  */
-public class PersegiPanjang extends Benda2D {
-    private final double panjang;
-    private final double lebar;
-
-    // Konstruktor utama untuk persegi panjang umum
+public class PersegiPanjang extends Benda2D implements Runnable {
+    public double panjang;
+    public double lebar;
+    public double luas;
+    public double keliling;
+    
     public PersegiPanjang(double panjang, double lebar) {
-        // 2. Lakukan validasi langsung di konstruktor
-        if (panjang <= 0) {
-            throw new IllegalArgumentException("Panjang harus bernilai positif.");
+        if (panjang <= 0 || lebar <= 0) {
+            throw new IllegalArgumentException("Panjang dan lebar harus bernilai positif.");
         }
-        if (lebar <= 0) {
-            throw new IllegalArgumentException("Lebar harus bernilai positif.");
-        }
-        this.panjang = panjang; // Tetapkan nilai 'panjang' sekali saat konstruksi
-        this.lebar = lebar;     // Tetapkan nilai 'lebar' sekali saat konstruksi
+        this.panjang = panjang;
+        this.lebar = lebar;
+        this.luas = hitungLuas();
+        this.keliling = hitungKeliling();
     }
-
-    // Getter untuk panjang
-    public double getPanjang() {
-        return panjang;
-    }
-
-    // Getter untuk lebar
-    public double getLebar() {
-        return lebar;
-    }
-
+    
     @Override
     public double hitungLuas() {
-        return this.panjang * this.lebar;
+        this.luas = this.panjang * this.lebar;
+        return this.luas;
     }
-
+    
     @Override
     public double hitungKeliling() {
-        return 2 * (this.panjang + this.lebar);
+        this.keliling = 2 * (this.panjang + this.lebar);
+        return this.keliling;
+    }
+    
+    @Override
+    public synchronized void run() {
+        try {
+            wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("[PersegiPanjang] Luas: " + hitungLuas());
+        System.out.println("[PersegiPanjang] Keliling: " + hitungKeliling());
+        notifyAll();
     }
 }
