@@ -8,66 +8,49 @@ package bendageometri.benda2d;
  *
  * @author nbnrc
  */
-public class Trapesium extends Benda2D {
-    private double sisiAtas;
-    private double sisiBawah;
-    private double tinggi;
-    private double sisiMiring1;
-    private double sisiMiring2;
-
-    // Konstruktor utama untuk trapesium umum
+public class Trapesium extends Benda2D implements Runnable {
+    public double sisiAtas;
+    public double sisiBawah;
+    public double tinggi;
+    public double sisiMiring1;
+    public double sisiMiring2;
+    public double luas;
+    public double keliling;
+    
     public Trapesium(double sisiAtas, double sisiBawah, double tinggi, double sisiMiring1, double sisiMiring2) {
         if (sisiAtas <= 0 || sisiBawah <= 0 || tinggi <= 0 || sisiMiring1 <= 0 || sisiMiring2 <= 0) {
-            throw new IllegalArgumentException("Semua dimensi trapesium (sisi atas, sisi bawah, tinggi, sisi miring) harus bernilai positif.");
-        }
-        // Validasi dasar: sisi miring tidak boleh lebih pendek dari tinggi.
-        if (sisiMiring1 < tinggi || sisiMiring2 < tinggi) {
-            throw new IllegalArgumentException("Sisi miring tidak boleh lebih pendek dari tinggi trapesium.");
+            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
         }
         this.sisiAtas = sisiAtas;
         this.sisiBawah = sisiBawah;
         this.tinggi = tinggi;
         this.sisiMiring1 = sisiMiring1;
         this.sisiMiring2 = sisiMiring2;
+        this.luas = hitungLuas();
+        this.keliling = hitungKeliling();
     }
-
-    // Overloaded constructor: untuk trapesium sama kaki
-    public Trapesium(double sisiAtas, double sisiBawah, double tinggi, double sisiMiringSama) {
-        // Memanggil konstruktor utama dengan sisiMiring1 = sisiMiring2 = sisiMiringSama
-        this(sisiAtas, sisiBawah, tinggi, sisiMiringSama, sisiMiringSama);
-    }
-
-
-    // Getter
-    public double getSisiAtas() {
-        return sisiAtas;
-    }
-
-    public double getSisiBawah() {
-        return sisiBawah;
-    }
-
-    public double getTinggi() {
-        return tinggi;
-    }
-
-    public double getSisiMiring1() {
-        return sisiMiring1;
-    }
-
-    public double getSisiMiring2() {
-        return sisiMiring2;
-    }
-
-    // Tidak ada setter publik untuk menjaga imutabilitas setelah objek dibuat.
-
+    
     @Override
     public double hitungLuas() {
-        return 0.5 * (this.sisiAtas + this.sisiBawah) * this.tinggi;
+        this.luas = 0.5 * (this.sisiAtas + this.sisiBawah) * this.tinggi;
+        return this.luas;
     }
-
+    
     @Override
     public double hitungKeliling() {
-        return this.sisiAtas + this.sisiBawah + this.sisiMiring1 + this.sisiMiring2;
+        this.keliling = this.sisiAtas + this.sisiBawah + this.sisiMiring1 + this.sisiMiring2;
+        return this.keliling;
+    }
+    
+    @Override
+    public synchronized void run() {
+        try {
+            wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("[Trapesium] Luas: " + hitungLuas());
+        System.out.println("[Trapesium] Keliling: " + hitungKeliling());
+        notifyAll();
     }
 }
