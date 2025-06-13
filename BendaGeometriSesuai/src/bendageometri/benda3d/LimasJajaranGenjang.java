@@ -10,71 +10,90 @@ import bendageometri.benda2d.JajaranGenjang;
  *
  * @author nbnrc
  */
-public class LimasJajaranGenjang extends JajaranGenjang {
+public class LimasJajaranGenjang extends JajaranGenjang implements Runnable {
+    private double tinggiLimas;
     private double volume;
     private double luasPermukaan;
-    private double tinggiLimas;
-    
+
     // Konstruktor utama
-    public LimasJajaranGenjang(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiLimas) throws IllegalArgumentException {
-        super(alas, sisiMiring, tinggiJajarGenjang); // Memanggil konstruktor JajarGenjang
+    public LimasJajaranGenjang(double alas, double tinggiAlas, double sisiMiring, double tinggiLimas)throws IllegalArgumentException {
+        // Memanggil konstruktor JajaranGenjang
+        super(alas, tinggiAlas, sisiMiring);
         
         if (tinggiLimas <= 0) {
             throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
         }
-        
         this.tinggiLimas = tinggiLimas;
+        
+        // Hitung dan simpan nilai saat objek dibuat
         this.volume = hitungVolume();
         this.luasPermukaan = hitungLuasPermukaan();
     }
-    
-    // Getter untuk volume
-    public double getVolume() {
-        return volume;
-    }
-    
-    // Getter untuk luasPermukaan
-    public double getLuasPermukaan() {
-        return luasPermukaan;
-    }
-    
-    // Getter untuk tinggiLimas
-    public double getTinggiLimas() {
-        return tinggiLimas;
-    }
-    
-    @Override
+
+    // Getter
+    public double getTinggiLimas() { return tinggiLimas; }
+    public double getVolume() { return volume; }
+    public double getLuasPermukaan() { return luasPermukaan; }
+
     public double hitungVolume() {
-        // Volume Limas = (1/3) * Luas Alas * tinggiLimas
-        return (1.0/3.0) * this.luas * this.tinggiLimas;
+        // Volume Limas = (Luas Alas * tinggiLimas) / 3
+        return (super.luas * this.tinggiLimas) / 3.0;
     }
     
-    // Overloading untuk hitungVolume dengan parameter
-    public double hitungVolume(double alas, double tinggiJajarGenjang, double tinggiLimas) {
-        if (alas <= 0 || tinggiJajarGenjang <= 0 || tinggiLimas <= 0) {
-            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double alas, double tinggiAlas, double tinggiLimas) {
+        if (tinggiLimas <= 0) {
+            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
         }
-        double luasAlas = alas * tinggiJajarGenjang;
-        return (1.0/3.0) * luasAlas * tinggiLimas;
+        // Memanfaatkan hitungLuas dari superclass
+        double luasAlas = super.hitungLuas(alas, tinggiAlas);
+        return (luasAlas * tinggiLimas) / 3.0;
+    }
+    
+    public double hitungLuasPermukaan() {
+        // Luas Permukaan = Luas Alas + Luas Selimut
+        // Diasumsikan limas tegak. Luas selimut adalah jumlah 2 pasang segitiga yang berbeda.
+        
+        // Tinggi sisi tegak (slant height) untuk sisi alas
+        double tsTegakAlas = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(super.tinggi / 2, 2));
+        // Tinggi sisi tegak (slant height) untuk sisi miring
+        // Perhitungan ini memerlukan jarak tegak lurus dari pusat ke sisi miring, yang rumit.
+        // Kita gunakan penyederhanaan.
+        double tsTegakMiring = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(super.alas / 2, 2)); 
+        
+        // Luas 2 sisi tegak yang berbasis pada 'alas'
+        double luasTegak1 = super.alas * tsTegakAlas;
+        // Luas 2 sisi tegak yang berbasis pada 'sisiMiring'
+        double luasTegak2 = super.sisiMiring * tsTegakMiring;
+        
+        return super.luas + luasTegak1 + luasTegak2;
+    }
+    
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double alas, double tinggiAlas, double sisiMiring, double tinggiLimas) {
+         if (tinggiLimas <= 0) {
+            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
+        }
+        double luasAlas = super.hitungLuas(alas, tinggiAlas);
+
+        // Logika perhitungan luas selimut sama dengan metode override
+        double tsTegakAlas = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(tinggiAlas / 2, 2));
+        double tsTegakMiring = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(alas / 2, 2));
+        
+        double luasTegak1 = alas * tsTegakAlas;
+        double luasTegak2 = sisiMiring * tsTegakMiring;
+        
+        return luasAlas + luasTegak1 + luasTegak2;
     }
     
     @Override
-    public double hitungLuasPermukaan() {
-        // Luas Permukaan = Luas Alas + Luas Sisi Tegak
-        // Untuk limas, perhitungan luas sisi tegak disederhanakan
-        double luasAlas = this.luas;
-        double luasSisiTegak = this.keliling * this.tinggiLimas * 0.5;
-        return luasAlas + luasSisiTegak;
-    }
-    
-    // Overloading untuk hitungLuasPermukaan dengan parameter
-    public double hitungLuasPermukaan(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiLimas) {
-        if (alas <= 0 || sisiMiring <= 0 || tinggiJajarGenjang <= 0 || tinggiLimas <= 0) {
-            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
-        }
-        double luasAlas = alas * tinggiJajarGenjang;
-        double kelilingAlas = 2 * (alas + sisiMiring);
-        double luasSisiTegak = kelilingAlas * tinggiLimas * 0.5;
-        return luasAlas + luasSisiTegak;
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Limas Jajaran Genjang (t=" + getTinggiLimas() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Limas Jajaran Genjang (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

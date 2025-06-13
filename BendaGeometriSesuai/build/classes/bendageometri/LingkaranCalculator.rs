@@ -1,2 +1,0 @@
-bendageometri.HasilLingkaran
-bendageometri.LingkaranCalculator

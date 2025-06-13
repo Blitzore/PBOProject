@@ -9,69 +9,70 @@ import bendageometri.benda2d.JajaranGenjang;
  *
  * @author nbnrc
  */
-public class PrismaJajaranGenjang extends JajaranGenjang {
+public class PrismaJajaranGenjang extends JajaranGenjang implements Runnable{
+    private double tinggiPrisma;
     private double volume;
     private double luasPermukaan;
-    private double tinggiPrisma;
-    
+
     // Konstruktor utama
-    public PrismaJajaranGenjang(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiPrisma) throws IllegalArgumentException {
-        super(alas, sisiMiring, tinggiJajarGenjang); // Memanggil konstruktor JajarGenjang
+    public PrismaJajaranGenjang(double alas, double tinggiAlas, double sisiMiring, double tinggiPrisma)throws IllegalArgumentException {
+        // Memanggil konstruktor JajaranGenjang
+        super(alas, tinggiAlas, sisiMiring);
         
         if (tinggiPrisma <= 0) {
             throw new IllegalArgumentException("Tinggi prisma harus bernilai positif.");
         }
-        
         this.tinggiPrisma = tinggiPrisma;
+        
+        // Hitung dan simpan nilai saat objek dibuat
         this.volume = hitungVolume();
         this.luasPermukaan = hitungLuasPermukaan();
     }
+
+    // Getter
+    public double getTinggiPrisma() { return tinggiPrisma; }
+    public double getVolume() { return volume; }
+    public double getLuasPermukaan() { return luasPermukaan; }
     
-    // Getter untuk volume
-    public double getVolume() {
-        return volume;
-    }
-    
-    // Getter untuk luasPermukaan
-    public double getLuasPermukaan() {
-        return luasPermukaan;
-    }
-    
-    // Getter untuk tinggiPrisma
-    public double getTinggiPrisma() {
-        return tinggiPrisma;
-    }
-    
-    @Override
     public double hitungVolume() {
-        // Volume Prisma = Luas Alas * tinggiPrisma
-        return this.luas * this.tinggiPrisma;
+        // Volume Prisma = Luas Alas (dari JajaranGenjang) * tinggiPrisma
+        return super.luas * this.tinggiPrisma;
+    }
+
+    public double hitungLuasPermukaan() {
+        // Luas Permukaan Prisma = (2 * Luas Alas) + (Keliling Alas * tinggiPrisma)
+        return (2 * super.luas) + (super.keliling * this.tinggiPrisma);
     }
     
-    // Overloading untuk hitungVolume dengan parameter
-    public double hitungVolume(double alas, double tinggiJajarGenjang, double tinggiPrisma) {
-        if (alas <= 0 || tinggiJajarGenjang <= 0 || tinggiPrisma <= 0) {
-            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double alas, double tinggiAlas, double tinggiPrisma) {
+        if (tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Tinggi prisma harus bernilai positif.");
         }
-        double luasAlas = alas * tinggiJajarGenjang;
+        // Memanfaatkan hitungLuas dari superclass
+        double luasAlas = super.hitungLuas(alas, tinggiAlas);
         return luasAlas * tinggiPrisma;
     }
     
-    @Override
-    public double hitungLuasPermukaan() {
-        // Luas Permukaan = 2 * Luas Alas + Luas Selimut
-        double luasAlas = this.luas;
-        double kelilingAlas = this.keliling;
-        return (2 * luasAlas) + (kelilingAlas * this.tinggiPrisma);
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double alas, double tinggiAlas, double sisiMiring, double tinggiPrisma) {
+        if (tinggiPrisma <= 0) {
+            throw new IllegalArgumentException("Tinggi prisma harus bernilai positif.");
+        }
+        // Memanfaatkan metode dari superclass
+        double luasAlas = super.hitungLuas(alas, tinggiAlas);
+        double kelilingAlas = super.hitungKeliling(alas, sisiMiring);
+        return (2 * luasAlas) + (kelilingAlas * tinggiPrisma);
     }
     
-    // Overloading untuk hitungLuasPermukaan dengan parameter
-    public double hitungLuasPermukaan(double alas, double sisiMiring, double tinggiJajarGenjang, double tinggiPrisma) {
-        if (alas <= 0 || sisiMiring <= 0 || tinggiJajarGenjang <= 0 || tinggiPrisma <= 0) {
-            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
-        }
-        double luasAlas = alas * tinggiJajarGenjang;
-        double kelilingAlas = 2 * (alas + sisiMiring);
-        return (2 * luasAlas) + (kelilingAlas * tinggiPrisma);
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Prisma Jajaran Genjang (t=" + getTinggiPrisma() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Prisma Jajaran Genjang (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

@@ -10,116 +10,88 @@ import bendageometri.benda2d.LayangLayang;
  *
  * @author nbnrc
  */
-public class LimasLayangLayang extends LayangLayang { // Mewarisi LayangLayang untuk alasnya
-
-    public static class InvalidLimasException extends IllegalArgumentException {
-
-        public InvalidLimasException(String message) {
-            super(message);
-        }
-    }
-
-    private double tinggiLimas; // Bisa mutable dengan setter
+public class LimasLayangLayang extends LayangLayang implements Runnable {
+    private double tinggiLimas;
+    private double volume;
+    private double luasPermukaan;
 
     // Konstruktor utama
-    public LimasLayangLayang(double d1Alas, double d2Alas,
-            double sisiAAlas, double sisiBAlas,
-            double tinggiLimas) {
-        super(d1Alas, d2Alas, sisiAAlas, sisiBAlas);
-        try {
-            setTinggiLimas(tinggiLimas);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidLimasException("Tinggi limas tidak valid: " + e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException("Gagal membuat limas layang-layang", e);
-        }
-    }
-
-    // Overloaded constructor: jika alas LayangLayang didefinisikan dengan cara alternatif
-    public LimasLayangLayang(double sisiPendekAlas, double sisiPanjangAlas,
-            double diagonalPenghubungAlas, double tinggiLimas) {
-        super(sisiPendekAlas, sisiPanjangAlas, diagonalPenghubungAlas);
-        try {
-            setTinggiLimas(tinggiLimas);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidLimasException("Tinggi limas tidak valid: " + e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException("Gagal membuat limas layang-layang", e);
-        }
-    }
-
-    // Getter untuk tinggiLimas
-    public double getTinggiLimas() {
-        return tinggiLimas;
-    }
-
-    // Setter untuk tinggiLimas dengan validasi
-    public void setTinggiLimas(double tinggiLimas) {
+    public LimasLayangLayang(double d1, double d2, double sisiA, double sisiB, double tinggiLimas) throws NegativeDimensionException {
+        // Memanggil konstruktor LayangLayang
+        super(d1, d2, sisiA, sisiB);
+        
         if (tinggiLimas <= 0) {
-            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
+            throw new NegativeDimensionException("Tinggi limas harus bernilai positif.");
         }
         this.tinggiLimas = tinggiLimas;
+        
+        // Hitung dan simpan nilai saat objek dibuat
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
 
-    // Getter untuk properti alas (getDiagonal1, getDiagonal2, getSisiA, getSisiB)
-    // diwarisi dari LayangLayang (immutable)
-    @Override
+    // Getter
+    public double getTinggiLimas() { return tinggiLimas; }
+    public double getVolume() { return volume; }
+    public double getLuasPermukaan() { return luasPermukaan; }
+
     public double hitungVolume() {
-        try {
-            return (1.0 / 3.0) * super.hitungLuas() * this.tinggiLimas;
-        } catch (Exception e) {
-            throw new RuntimeException("Gagal menghitung volume limas layang-layang", e);
-        }
+        // Volume Limas = (Luas Alas * tinggiLimas) / 3
+        return (super.luas * this.tinggiLimas) / 3.0;
     }
-
-    /**
-     * Menghitung luas permukaan limas layang-layang. Untuk limas layang-layang
-     * umum, perhitungan akurat luas sisi tegak memerlukan tinggi masing-masing
-     * sisi tegak. Metode ini, tanpa parameter tambahan, akan mengembalikan luas
-     * alas dengan peringatan. Gunakan hitungLuasPermukaan(tinggiSisiTegakA,
-     * tinggiSisiTegakB) untuk perhitungan akurat dengan menyediakan tinggi sisi
-     * tegak. (Diasumsikan ada dua pasang sisi tegak yang identik jika limasnya
-     * tegak).
-     */
-    @Override
+    
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double d1, double d2, double tinggiLimas) throws NegativeDimensionException {
+        if (tinggiLimas <= 0) {
+            throw new NegativeDimensionException("Tinggi limas harus bernilai positif.");
+        }
+        // Memanfaatkan hitungLuas dari superclass
+        double luasAlas = super.hitungLuas(d1, d2);
+        return (luasAlas * tinggiLimas) / 3.0;
+    }
+    
     public double hitungLuasPermukaan() {
-        try {
-            double luasAlas = super.hitungLuas();
-            System.err.println("Peringatan: hitungLuasPermukaan() untuk LimasLayangLayang ini mungkin tidak akurat karena merupakan kasus umum. Hanya luas alas yang dihitung. Gunakan metode hitungLuasPermukaan() dengan parameter tinggi sisi tegak untuk hasil akurat.");
-            return luasAlas;
-        } catch (Exception e) {
-            throw new RuntimeException("Gagal menghitung luas permukaan limas layang-layang", e);
-        }
+        // Luas Permukaan = Luas Alas + Luas Selimut
+        // Diasumsikan limas tegak. Luas selimut adalah jumlah 2 pasang segitiga yang berbeda.
+        
+        // Menghitung tinggi sisi tegak (slant height) untuk setiap pasang sisi
+        // Ini adalah penyederhanaan; rumus akurat memerlukan properti geometri lebih lanjut.
+        double tsTegakA = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(super.d1 / 2, 2));
+        double tsTegakB = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(super.d2 / 2, 2));
+        
+        // Luas 2 sisi tegak yang berbasis pada sisi pendek (sisiA)
+        double luasTegak1 = super.sisiA * tsTegakA;
+        // Luas 2 sisi tegak yang berbasis pada sisi panjang (sisiB)
+        double luasTegak2 = super.sisiB * tsTegakB;
+        
+        return super.luas + luasTegak1 + luasTegak2;
     }
-
-    /**
-     * Menghitung luas permukaan limas layang-layang dengan menyediakan tinggi
-     * sisi tegak. Layang-layang memiliki dua pasang sisi yang sama panjang
-     * (sisiA dan sisiB). Jika limasnya tegak, maka akan ada dua pasang sisi
-     * tegak (segitiga) yang identik.
-     *
-     * @param tinggiSisiTegakUntukSisiA Tinggi sisi tegak yang alasnya adalah
-     * 'sisiA' dari LayangLayang dasar.
-     * @param tinggiSisiTegakUntukSisiB Tinggi sisi tegak yang alasnya adalah
-     * 'sisiB' dari LayangLayang dasar.
-     * @return Luas permukaan total limas layang-layang.
-     */
-    public double hitungLuasPermukaan(double tinggiSisiTegakUntukSisiA,
-            double tinggiSisiTegakUntukSisiB) {
-        try {
-            if (tinggiSisiTegakUntukSisiA <= 0 || tinggiSisiTegakUntukSisiB <= 0) {
-                throw new IllegalArgumentException("Semua tinggi sisi tegak harus bernilai positif.");
-            }
-
-            double luasAlas = super.hitungLuas();
-            double luasTotalSisiTegak = 2 * (0.5 * getSisiA() * tinggiSisiTegakUntukSisiA)
-                    + 2 * (0.5 * getSisiB() * tinggiSisiTegakUntukSisiB);
-
-            return luasAlas + luasTotalSisiTegak;
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Gagal menghitung luas permukaan limas layang-layang dengan parameter", e);
+    
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double d1, double d2, double sisiA, double sisiB, double tinggiLimas) throws NegativeDimensionException {
+         if (tinggiLimas <= 0) {
+            throw new NegativeDimensionException("Tinggi limas harus bernilai positif.");
         }
+        double luasAlas = super.hitungLuas(d1, d2);
+
+        // Logika perhitungan luas selimut sama dengan metode override
+        double tsTegakA = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(d1 / 2, 2));
+        double tsTegakB = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(d2 / 2, 2));
+        
+        double luasTegak1 = sisiA * tsTegakA;
+        double luasTegak2 = sisiB * tsTegakB;
+        
+        return luasAlas + luasTegak1 + luasTegak2;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Limas Layang-Layang (t=" + getTinggiLimas() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Limas Layang-Layang (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

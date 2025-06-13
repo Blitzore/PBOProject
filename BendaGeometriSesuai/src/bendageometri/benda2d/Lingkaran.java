@@ -1,83 +1,79 @@
 package bendageometri.benda2d;
 
-import java.util.concurrent.*;
+public class Lingkaran extends Benda2D implements Runnable {
+    // Atribut publik agar bisa diakses oleh kelas turunan
+    public double jariJari;
+    public double luas;
+    public double keliling;
 
-public class Lingkaran extends Benda2D {
-
-    // ✅ Custom Exception
-    public static class PerhitunganLingkaranException extends RuntimeException {
-        public PerhitunganLingkaranException(String message, Throwable cause) {
-            super(message, cause);
+    // Exception kustom dari file asli
+    public static class PerhitunganLingkaranException extends Exception {
+        public PerhitunganLingkaranException(String message) {
+            super(message);
         }
     }
 
-    public final double jariJari;
-    public volatile double luas = -1;
-    public volatile double keliling = -1;
-    public final ExecutorService executor;
-
-    public Lingkaran(double jariJari) {
-        if (jariJari <= 0) {
-            throw new IllegalArgumentException("Jari-jari harus bernilai positif.");
-        }
-        this.jariJari = jariJari;
-        this.executor = Executors.newFixedThreadPool(2);
-    }
-
-    public double getJariJari() {
-        return jariJari;
-    }
-
-    @Override
-    public synchronized double hitungLuas() {
-        Future<Double> future = executor.submit(() -> Math.PI * jariJari * jariJari);
+    // Konstruktor utama
+    public Lingkaran(double jariJari) throws PerhitunganLingkaranException {
         try {
-            luas = future.get();
-            return luas;
-        } catch (InterruptedException | ExecutionException e) {
-            luas = -1; // Tandai error
-            System.err.println("❌ Error menghitung luas lingkaran: " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung luas lingkaran", e);
-        }
-    }
-    public  synchronized double hitungLuas(double jari) {
-        Future<Double> future = executor.submit(() -> Math.PI * jari * jari);
-        try {
-            luas = future.get();
-            return luas;
-        } catch (InterruptedException | ExecutionException e) {
-            luas = -1;
-            System.err.println("❌ Error menghitung luas lingkaran (dengan parameter): " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung luas lingkaran (dengan parameter)", e);
-        }
-    }
+            // 1. Validasi input di dalam blok try
+            if (jariJari <= 0) {
+                // Melempar exception jika validasi gagal
+                throw new PerhitunganLingkaranException("Jari-jari lingkaran harus bernilai positif.");
+            }
 
-    @Override
-    public  synchronized double hitungKeliling() {
-        Future<Double> future = executor.submit(() -> 2 * Math.PI * jariJari);
-        try {
-            keliling = future.get();
-            return keliling;
-        } catch (InterruptedException | ExecutionException e) {
-            keliling = -1;
-            System.err.println("❌ Error menghitung keliling lingkaran: " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung keliling lingkaran", e);
-        }
-    }
+            this.jariJari = jariJari;
+            this.luas = hitungLuas();
+            this.keliling = hitungKeliling();
 
-    public  synchronized double hitungKeliling(double jari) {
-        Future<Double> future = executor.submit(() -> 2 * Math.PI * jari);
-        try {
-            keliling = future.get();
-            return keliling;
-        } catch (InterruptedException | ExecutionException e) {
-            keliling = -1;
-            System.err.println("❌ Error menghitung keliling lingkaran (dengan parameter): " + e.getMessage());
-            throw new PerhitunganLingkaranException("Gagal menghitung keliling lingkaran (dengan parameter)", e);
+        } catch (PerhitunganLingkaranException e) {
+            throw e;
         }
     }
     
-    public void shutdown() {
-        executor.shutdown();
+    @Override
+    public double hitungLuas() {
+        // Rumus luas lingkaran = PI * r^2
+        this.luas = Math.PI * Math.pow(this.jariJari, 2);
+        return this.luas;
+    }
+    
+    // Overloading untuk hitungLuas dengan parameter
+    public double hitungLuas(double jariJari) throws PerhitunganLingkaranException {
+        if (jariJari <= 0) {
+            throw new PerhitunganLingkaranException("Jari-jari untuk perhitungan luas harus positif.");
+        }
+        // Metode ini hanya menghitung tanpa mengubah atribut instance
+        return Math.PI * Math.pow(jariJari, 2);
+    }
+    
+    @Override
+    public double hitungKeliling() {
+        // Rumus keliling lingkaran = 2 * PI * r
+        this.keliling = 2 * Math.PI * this.jariJari;
+        return this.keliling;
+    }
+    
+    // Overloading untuk hitungKeliling dengan parameter
+    public double hitungKeliling(double jariJari) throws PerhitunganLingkaranException {
+        if (jariJari <= 0) {
+            throw new PerhitunganLingkaranException("Jari-jari untuk perhitungan keliling harus positif.");
+        }
+        // Metode ini hanya menghitung tanpa mengubah atribut instance
+        return 2 * Math.PI * jariJari;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Lingkaran r=" + this.jariJari);
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Lingkaran (setelah " + jeda + " ms)");
+            System.out.printf("   > Luas: %.2f, Keliling: %.2f\n", this.luas, this.keliling);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Thread untuk Lingkaran diinterupsi.");
+        }
     }
 }

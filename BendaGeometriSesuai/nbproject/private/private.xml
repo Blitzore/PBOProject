@@ -3,20 +3,41 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaPersegiPanjang.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/LimasJajaranGenjang.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/TemberengBola.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/Segitiga.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/LimasTrapesium.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/BendaGeometri.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaBelahKetupat.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/TemberengLingkaran.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaJajaranGenjang.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/JuringBola.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/KerucutTerpancung.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/CincinBola.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaPersegi.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/JuringLingkaran.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/LimasLayangLayang.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaTrapesium.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/BelahKetupat.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/Trapesium.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/Benda2D.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/LimasSegitiga.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/JajaranGenjang.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/Bola.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaSegitiga.java</file>
-            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/Segitiga.java</file>
-            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/LingkaranCalculator.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/PersegiPanjang.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/LayangLayang.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/Persegi.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/LimasPersegi.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/MainGeometri.java</file>
-            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/KerucutTerpancung.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/LimasPersegiPanjang.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/Tabung.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/MainGui.java</file>
             <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda2d/Lingkaran.java</file>
-            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/CincinBola.java</file>
-            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaPersegi.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/Kerucut.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/LimasBelahKetupat.java</file>
+            <file>file:/C:/Users/nbnrc/OneDrive/Documents/NetBeansProjects/PBOProject/BendaGeometriSesuai/src/bendageometri/benda3d/PrismaLayangLayang.java</file>
         </group>
     </open-files>
 </project-private>

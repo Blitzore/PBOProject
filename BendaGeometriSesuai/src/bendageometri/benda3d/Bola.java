@@ -1,107 +1,77 @@
 package bendageometri.benda3d;
 
 import bendageometri.benda2d.*;
-import java.util.concurrent.*;
 
-public class Bola extends Lingkaran {
+public class Bola extends Lingkaran implements Runnable {
+    private double volume;
+    private double luasPermukaan;
 
-    // ✅ Custom Exception
-    public static class PerhitunganBolaException extends RuntimeException {
-        public PerhitunganBolaException(String message, Throwable cause) {
-            super(message, cause);
+    public static class PerhitunganBolaException extends Exception  {
+        public PerhitunganBolaException(String message) {
+            super(message);
         }
     }
-
-    public volatile double volume;
-    public volatile double luasPermukaan;
-    public final ExecutorService executor;
-
-    public Bola(double jariJari) {
+    
+    // Konstruktor utama
+    public Bola(double jariJari) throws PerhitunganLingkaranException {
+        // Memanggil konstruktor Lingkaran, yang otomatis menghitung super.luas dan super.keliling
         super(jariJari);
-        this.executor = Executors.newFixedThreadPool(2);
+        
+        // Hitung dan simpan volume serta luas permukaan saat objek dibuat
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
+    }
+    
+    // Getter untuk mengakses atribut private
+    public double getVolume() {
+        return this.volume;
+    }
+    
+    public double getLuasPermukaan() {
+        return this.luasPermukaan;
     }
 
-    @Override
     public double hitungVolume() {
-        Future<Double> future = executor.submit(() -> {
-            double jari = super.jariJari;
-            if (jari <= 0) {
-                System.err.println("❌ Jari-jari bola tidak valid: " + jari);
-                return -1.0;
-            }
-            return volume = (4.0 / 3.0) * super.luas * jari;
-        });
-
-        try {
-            volume = future.get();
-            return volume;
-        } catch (InterruptedException | ExecutionException e) {
-            volume = -1;
-            System.err.println("❌ Gagal menghitung volume bola: " + e.getMessage());
-            throw new PerhitunganBolaException("Gagal menghitung volume bola", e);
-        }
+        // DIUBAH: Rumus volume bola menggunakan super.luas untuk efisiensi
+        // V = 4/3 * pi * r^3  = (4/3) * (pi * r^2) * r = (4/3) * super.luas * this.jariJari
+        this.volume = (4.0/3.0) * super.luas * super.jariJari;
+        return this.volume;
     }
-
-    public double hitungVolume(double jari) {
-        Future<Double> future = executor.submit(() -> {
-            if (jari <= 0) {
-                System.err.println("❌ Jari-jari bola (param) tidak valid: " + jari);
-                return -1.0;
-            }
-            return volume = (4.0 / 3.0) * super.hitungLuas(jari) * jari;
-        });
-
-        try {
-            volume = future.get();
-            return volume;
-        } catch (InterruptedException | ExecutionException e) {
-            volume = -1;
-            System.err.println("❌ Gagal menghitung volume bola (param): " + e.getMessage());
-            throw new PerhitunganBolaException("Gagal menghitung volume bola (dengan parameter)", e);
+    
+    // Overloading untuk hitungVolume dengan parameter
+    public double hitungVolume(double jariJari) throws PerhitunganLingkaranException, PerhitunganBolaException {
+        if (jariJari <= 0) {
+            throw new PerhitunganBolaException("Jari-jari untuk perhitungan volume harus positif.");
         }
+        // Menghitung luas alas terlebih dahulu menggunakan metode superclass
+        double luasAlas = super.hitungLuas(jariJari);
+        return (4.0/3.0) * luasAlas * jariJari;
     }
-
-    @Override
+    
     public double hitungLuasPermukaan() {
-        Future<Double> future = executor.submit(() -> {
-            double jari = super.jariJari;
-            if (jari <= 0) {
-                System.err.println("❌ Jari-jari bola tidak valid: " + jari);
-                return -1.0;
-            }
-            return luasPermukaan = 4 * super.luas;
-        });
-
-        try {
-            luasPermukaan = future.get();
-            return luasPermukaan;
-        } catch (InterruptedException | ExecutionException e) {
-            luasPermukaan = -1;
-            System.err.println("❌ Gagal menghitung luas permukaan bola: " + e.getMessage());
-            throw new PerhitunganBolaException("Gagal menghitung luas permukaan bola", e);
-        }
+        // DIUBAH: Rumus luas permukaan bola menggunakan super.luas
+        // LP = 4 * pi * r^2 = 4 * (luas lingkaran)
+        this.luasPermukaan = 4 * super.luas;
+        return this.luasPermukaan;
     }
-
-    public double hitungLuasPermukaan(double jari) {
-        Future<Double> future = executor.submit(() -> {
-            if (jari <= 0) {
-                System.err.println("❌ Jari-jari bola (param) tidak valid: " + jari);
-                return -1.0;
-            }
-            return 4 * super.hitungLuas(jari);
-        });
-
-        try {
-            luasPermukaan = future.get();
-            return luasPermukaan;
-        } catch (InterruptedException | ExecutionException e) {
-            luasPermukaan = -1;
-            System.err.println("❌ Gagal menghitung luas permukaan bola (param): " + e.getMessage());
-            throw new PerhitunganBolaException("Gagal menghitung luas permukaan bola (dengan parameter)", e);
+    
+    // Overloading untuk hitungLuasPermukaan dengan parameter
+    public double hitungLuasPermukaan(double jariJari) throws PerhitunganLingkaranException, PerhitunganBolaException {
+        if (jariJari <= 0) {
+            throw new PerhitunganBolaException("Jari-jari untuk perhitungan luas permukaan harus positif.");
         }
+        // Menghitung luas lingkaran terlebih dahulu menggunakan metode superclass
+        return 4 * super.hitungLuas(jariJari);
     }
-
-    public void shutdown() {
-        executor.shutdown();
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Bola r=" + this.jariJari);
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Bola (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

@@ -9,36 +9,33 @@ import bendageometri.benda2d.Persegi;
  *
  * @author nbnrc
  */
-public class PrismaPersegi extends Persegi {
+public class PrismaPersegi extends Persegi implements Runnable{
     private double volume;
     private double luasPermukaan;
 
-
-    // Konstruktor utama
-    public PrismaPersegi(double sisiKubus) throws IllegalArgumentException { //
-        super(sisiKubus); // Memanggil konstruktor Persegi. sisiAlas (this.sisi) menjadi sisiKubus.
-                         // Validasi sisiKubus (harus positif) ditangani oleh Persegi.
+    // Konstruktor utama untuk Kubus, hanya memerlukan satu sisi
+    public PrismaPersegi(double sisi)throws IllegalArgumentException {
+        super(sisi); // Memanggil konstruktor Persegi.
         
         // Hitung dan simpan volume serta luas permukaan saat objek dibuat
-        this.volume = hitungVolume(); // Memanggil metode hitungVolume
-        this.luasPermukaan = hitungLuasPermukaan(); // Memanggil metode hitungLuasPermukaan
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
 
     // Getter untuk volume
-    public double getVolume() { //
-        return volume; //
+    public double getVolume() {
+        return volume;
     }
 
     // Getter untuk luasPermukaan
-    public double getLuasPermukaan() { //
-        return luasPermukaan; //
+    public double getLuasPermukaan() {
+        return luasPermukaan;
     }
 
-    @Override
     public double hitungVolume() {
-        // Volume Prisma = Luas Alas (dari Persegi) * tinggiPrisma
-        // super.hitungLuas() akan memanggil Persegi.hitungLuas()
-        return this.luas * this.sisi;
+        // Volume Kubus = Luas Alas * tinggi, dimana tinggi = sisi
+        // Menggunakan super.sisi untuk tinggi
+        return super.luas * super.sisi;
     }
     
     // Overloading untuk hitungVolume dengan parameter sisi 's'
@@ -46,21 +43,16 @@ public class PrismaPersegi extends Persegi {
         if (s <= 0) {
             throw new IllegalArgumentException("Sisi untuk perhitungan volume harus bernilai positif.");
         }
-        // Memanfaatkan hitungLuas(s) dari superclass Persegi untuk luas alas
-        double luasAlas = super.hitungLuas(s); //
+        // Memanfaatkan hitungLuas(s) dari superclass Persegi
+        double luasAlas = super.hitungLuas(s);
         // Tinggi kubus juga 's'
         return luasAlas * s;
     }
 
-    @Override
     public double hitungLuasPermukaan() {
-        // Luas Permukaan Prisma = 2 * Luas Alas + Luas Selimut
-        // Luas Selimut = Keliling Alas * tinggiPrisma
-        // super.hitungLuas() dan super.hitungKeliling() dari Persegi
-        double luasAlas = this.luas;
-        double kelilingAlas = this.keliling;
-        double tinggiPrisma = this.sisi;
-        return (2 * luasAlas) + (kelilingAlas * tinggiPrisma);
+        // Luas Permukaan Kubus = 6 * luas sisi
+        // Atau (2 * Luas Alas) + (Keliling Alas * tinggi), dimana tinggi = sisi
+        return (2 * super.luas) + (super.keliling * super.sisi);
     }
     
     // Overloading untuk hitungLuasPermukaan dengan parameter sisi 's'
@@ -68,12 +60,18 @@ public class PrismaPersegi extends Persegi {
         if (s <= 0) {
             throw new IllegalArgumentException("Sisi untuk perhitungan luas permukaan harus bernilai positif.");
         }
-        // Memanfaatkan hitungLuas(s) dari superclass Persegi untuk luas alas
-        double luasAlas = super.hitungLuas(s); //
-        // Memanfaatkan hitungKeliling(s) dari superclass Persegi untuk keliling alas
-        double kelilingAlas = super.hitungKeliling(s); //
-        double tinggiPrisma = s; // Tinggi prisma adalah 's'
-
-        return (2 * luasAlas) + (kelilingAlas * tinggiPrisma);
+        // Luas permukaan kubus adalah 6 * (sisi * sisi)
+        return 6 * super.hitungLuas(s);
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Kubus (Prisma Persegi) sisi " + this.sisi);
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Kubus (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

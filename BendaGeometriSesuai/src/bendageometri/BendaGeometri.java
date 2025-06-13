@@ -13,6 +13,4 @@ package bendageometri;
 public interface BendaGeometri {
     double hitungLuas();
     double hitungKeliling();
-    double hitungVolume();
-    double hitungLuasPermukaan();
 }

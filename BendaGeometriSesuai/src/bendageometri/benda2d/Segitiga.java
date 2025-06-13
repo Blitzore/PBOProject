@@ -8,7 +8,7 @@ package bendageometri.benda2d;
  *
  * @author nbnrc
  */
-public class Segitiga extends Benda2D {
+public class Segitiga extends Benda2D implements Runnable {
     public double alas;
     public double tinggi;
     public double sisiB;
@@ -77,5 +77,20 @@ public class Segitiga extends Benda2D {
             throw new IllegalArgumentException("Sisi-sisi yang diberikan (a, b, c) tidak membentuk segitiga yang valid.");
         }
         return a + b + c;
+    }
+    
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Segitiga alas=" + this.alas);
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Segitiga (setelah " + jeda + " ms)");
+            System.out.printf("   > Luas: %.2f, Keliling: %.2f\n", this.luas, this.keliling);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Thread untuk Segitiga diinterupsi.");
+        }
     }
 }

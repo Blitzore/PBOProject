@@ -8,7 +8,7 @@ package bendageometri.benda2d;
  *
  * @author nbnrc
  */
-public class Persegi extends Benda2D {
+public class Persegi extends Benda2D implements Runnable {
     public double sisi;
     public double luas;
     public double keliling;
@@ -52,5 +52,19 @@ public class Persegi extends Benda2D {
             throw new IllegalArgumentException("Sisi untuk perhitungan keliling harus bernilai positif.");
         }
         return 4 * s;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Persegi sisi " + this.sisi);
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Persegi (setelah " + jeda + " ms)");
+            System.out.printf("   > Luas: %.2f, Keliling: %.2f\n", this.luas, this.keliling);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Thread untuk Persegi diinterupsi.");
+        }
     }
 }

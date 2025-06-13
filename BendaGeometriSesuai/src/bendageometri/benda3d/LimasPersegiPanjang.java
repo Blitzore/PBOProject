@@ -9,79 +9,93 @@ import bendageometri.benda2d.PersegiPanjang;
  *
  * @author nbnrc
  */
-public class LimasPersegiPanjang extends PersegiPanjang {
+public class LimasPersegiPanjang extends PersegiPanjang implements Runnable {
+    private double tinggi;
     private double volume;
     private double luasPermukaan;
-    private double tinggiLimas;
-    
+
     // Konstruktor utama
-    public LimasPersegiPanjang(double panjang, double lebar, double tinggiLimas) throws IllegalArgumentException {
+    public LimasPersegiPanjang(double panjang, double lebar, double tinggi)throws IllegalArgumentException {
         super(panjang, lebar); // Memanggil konstruktor PersegiPanjang
-        
-        if (tinggiLimas <= 0) {
-            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
+        if (tinggi <= 0) {
+            throw new IllegalArgumentException("Tinggi harus bernilai positif.");
         }
-        
-        this.tinggiLimas = tinggiLimas;
+        this.tinggi = tinggi;
+
+        // Hitung dan simpan volume serta luas permukaan saat objek dibuat
         this.volume = hitungVolume();
         this.luasPermukaan = hitungLuasPermukaan();
     }
     
+    // Getter untuk tinggi
+    public double getTinggi() {
+        return tinggi;
+    }
+
     // Getter untuk volume
     public double getVolume() {
         return volume;
     }
-    
+
     // Getter untuk luasPermukaan
     public double getLuasPermukaan() {
         return luasPermukaan;
     }
-    
-    // Getter untuk tinggiLimas
-    public double getTinggiLimas() {
-        return tinggiLimas;
-    }
-    
-    @Override
+
     public double hitungVolume() {
-        // Volume Limas = (1/3) * Luas Alas * tinggiLimas
-        return (1.0/3.0) * this.luas * this.tinggiLimas;
+        // Volume Limas = (Luas Alas * tinggiLimas) / 3
+        // super.luas mengakses atribut dari instance PersegiPanjang
+        return (super.luas * this.tinggi) / 3.0;
     }
     
     // Overloading untuk hitungVolume dengan parameter
-    public double hitungVolume(double panjang, double lebar, double tinggiLimas) {
-        if (panjang <= 0 || lebar <= 0 || tinggiLimas <= 0) {
-            throw new IllegalArgumentException("Semua parameter harus bernilai positif.");
+    public double hitungVolume(double panjang, double lebar, double tinggi) {
+        if (tinggi <= 0) {
+            throw new IllegalArgumentException("Tinggi untuk perhitungan volume harus bernilai positif.");
         }
-        double luasAlas = panjang * lebar;
-        return (1.0/3.0) * luasAlas * tinggiLimas;
+        // Memanfaatkan hitungLuas(p, l) dari superclass PersegiPanjang
+        double luasAlas = super.hitungLuas(panjang, lebar);
+        return (luasAlas * tinggi) / 3.0;
+    }
+
+    public double hitungLuasPermukaan() {
+        // Luas Permukaan Limas = Luas Alas + Jumlah Luas Sisi Tegak
+        // Menghitung tinggi dari masing-masing pasang sisi tegak (segitiga)
+        double tinggiSisiMiringA = Math.sqrt(Math.pow(super.lebar / 2, 2) + Math.pow(this.tinggi, 2));
+        double luasSisiTegakA = super.panjang * tinggiSisiMiringA;
+        
+        double tinggiSisiMiringB = Math.sqrt(Math.pow(super.panjang / 2, 2) + Math.pow(this.tinggi, 2));
+        double luasSisiTegakB = super.lebar * tinggiSisiMiringB;
+
+        return super.luas + luasSisiTegakA + luasSisiTegakB;
+    }
+
+    // Overloading untuk hitungLuasPermukaan dengan parameter
+    public double hitungLuasPermukaan(double panjang, double lebar, double tinggi) {
+        if (tinggi <= 0) {
+            throw new IllegalArgumentException("Tinggi untuk perhitungan luas permukaan harus bernilai positif.");
+        }
+        // Memanfaatkan hitungLuas(p, l) dari superclass PersegiPanjang
+        double luasAlas = super.hitungLuas(panjang, lebar);
+        
+        // Menghitung luas selimut dengan parameter yang diberikan
+        double tinggiSisiMiringA = Math.sqrt(Math.pow(lebar / 2, 2) + Math.pow(tinggi, 2));
+        double luasSisiTegakA = panjang * tinggiSisiMiringA;
+        
+        double tinggiSisiMiringB = Math.sqrt(Math.pow(panjang / 2, 2) + Math.pow(tinggi, 2));
+        double luasSisiTegakB = lebar * tinggiSisiMiringB;
+
+        return luasAlas + luasSisiTegakA + luasSisiTegakB;
     }
     
     @Override
-    public double hitungLuasPermukaan() {
-        // Luas Permukaan Limas = Luas Alas + Luas Seluruh Sisi Tegak
-        double luasAlas = super.hitungLuas();
-        
-        // Ada dua pasang sisi tegak (segitiga) yang berbeda.
-        // Pasangan pertama (2 segitiga) memiliki alas = panjangAlas (dari super.getPanjang())
-        // Pasangan kedua (2 segitiga) memiliki alas = lebarAlas (dari super.getLebar())
-
-        // Tinggi selimut (apotema) untuk segitiga dengan alas = panjangAlas
-        // t_selimut1 = sqrt(tinggiLimas^2 + (lebarAlas/2)^2)
-        double tinggiSelimut1 = Math.sqrt(Math.pow(this.tinggiLimas, 2) + Math.pow(super.lebar / 2.0, 2));
-        if (Double.isNaN(tinggiSelimut1) || tinggiSelimut1 < 0) {
-             throw new IllegalStateException("Perhitungan tinggi selimut 1 menghasilkan nilai tidak valid.");
-        }
-        double luasDuaSisiTegak1 = 2 * (0.5 * super.panjang * tinggiSelimut1); // atau getPanjang() * tinggiSelimut1
-
-        // Tinggi selimut (apotema) untuk segitiga dengan alas = lebarAlas
-        // t_selimut2 = sqrt(tinggiLimas^2 + (panjangAlas/2)^2)
-        double tinggiSelimut2 = Math.sqrt(Math.pow(this.tinggiLimas, 2) + Math.pow(super.panjang / 2.0, 2));
-        if (Double.isNaN(tinggiSelimut2) || tinggiSelimut2 < 0) {
-             throw new IllegalStateException("Perhitungan tinggi selimut 2 menghasilkan nilai tidak valid.");
-        }
-        double luasDuaSisiTegak2 = 2 * (0.5 * super.lebar * tinggiSelimut2); // atau getLebar() * tinggiSelimut2
-        
-        return luasAlas + luasDuaSisiTegak1 + luasDuaSisiTegak2;
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Limas Persegi Panjang (" + this.panjang + "x" + this.lebar + ", t=" + getTinggi() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Limas Persegi Panjang (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

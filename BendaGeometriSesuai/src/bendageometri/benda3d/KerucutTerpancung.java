@@ -10,77 +10,103 @@ import bendageometri.benda2d.Lingkaran;
  *
  * @author nbnrc
  */
-public class KerucutTerpancung extends Lingkaran { // Mewarisi Lingkaran untuk alas bawah (R)
-    private final double jariJariAtas; // Dibuat final
-    private final double tinggiKerucutTerpancung; // Dibuat final
-    private final double garisPelukis; // Dibuat final
+public class KerucutTerpancung extends Lingkaran implements Runnable {
+    private double jariJariAtas;
+    private double tinggi;
+    private double garisPelukis;
+    private double volume;
+    private double luasPermukaan;
 
     // Konstruktor utama
-    public KerucutTerpancung(double jariJariAlasBawah, double jariJariAlasAtas, double tinggi) {
-        super(jariJariAlasBawah);
-
-        if (jariJariAlasAtas <= 0) {
-            throw new IllegalArgumentException("Jari-jari alas atas harus bernilai positif.");
+    public KerucutTerpancung(double jariJariAlas, double jariJariAtas, double tinggi) throws PerhitunganLingkaranException, IllegalArgumentException {
+        super(jariJariAlas);
+        
+        if (jariJariAtas <= 0 || tinggi <= 0) {
+            throw new IllegalArgumentException("Dimensi kerucut terpancung harus bernilai positif.");
         }
-        if (tinggi <= 0) {
-            throw new IllegalArgumentException("Tinggi kerucut terpancung harus bernilai positif.");
+        if (jariJariAtas == jariJariAlas){
+            throw new IllegalArgumentException("Jari-jari atas dan alas tidak boleh sama (itu akan menjadi Tabung).");
         }
-
-        this.jariJariAtas = jariJariAlasAtas;
-        this.tinggiKerucutTerpancung = tinggi;
-
-        // Hitung garis pelukis (s = sqrt(t^2 + (R-r)^2))
-        double selisihJariJari = getJariJari() - this.jariJariAtas; // getJariJari() adalah R (bawah)
-        this.garisPelukis = Math.sqrt(Math.pow(this.tinggiKerucutTerpancung, 2) + Math.pow(selisihJariJari, 2));
-
-        if (Double.isNaN(this.garisPelukis) || this.garisPelukis < 0 || (this.garisPelukis == 0
-                && !(getJariJari() == this.jariJariAtas && this.tinggiKerucutTerpancung == 0))) {
-            // garisPelukis bisa 0 jika R=r dan tinggi=0 (degenerasi menjadi titik/garis),
-            // tapi tinggi sudah > 0
-            throw new IllegalStateException(
-                    "Perhitungan garis pelukis menghasilkan nilai tidak valid dari dimensi yang diberikan.");
-        }
+        this.jariJariAtas = jariJariAtas;
+        this.tinggi = tinggi;
+        
+        this.garisPelukis = hitungGarisPelukis();
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
-
+    
     // Getter
-    public double getJariJariAlasBawah() {
-        return getJariJari(); // Diwarisi dari Lingkaran
+    public double getJariJariAtas() { return this.jariJariAtas; }
+    public double getTinggi() { return this.tinggi; }
+    public double getGarisPelukis() { return this.garisPelukis; }
+    public double getVolume() { return this.volume; }
+    public double getLuasPermukaan() { return this.luasPermukaan; }
+    
+    private double hitungGarisPelukis() {
+        return Math.sqrt(Math.pow(this.tinggi, 2) + Math.pow(super.jariJari - this.jariJariAtas, 2));
     }
 
-    public double getJariJariAtas() {
-        return jariJariAtas;
-    }
-
-    public double getTinggiKerucutTerpancung() {
-        return tinggiKerucutTerpancung;
-    }
-
-    public double getGarisPelukis() {
-        return garisPelukis;
-    }
-
-    // Metode untuk menghitung luas alas atas
-    public double hitungLuasAlasAtas() {
-        return Math.PI * this.jariJariAtas * this.jariJariAtas;
-    }
-
-    @Override
+    // Metode ini baru untuk kelas ini
     public double hitungVolume() {
-        double R = getJariJariAlasBawah();
-        double r = this.jariJariAtas;
-        double t = this.tinggiKerucutTerpancung;
-        return (1.0 / 3.0) * Math.PI * t * (Math.pow(R, 2) + (R * r) + Math.pow(r, 2));
+        // DIUBAH: Menerapkan ide Anda untuk memanfaatkan super.luas
+        // Rumus: V = 1/3 * t * (luasAlas + pi*R*r + pi*r^2)
+        
+        // Bagian tengah dari rumus (pi * R * r)
+        double bagianTengah = Math.PI * super.jariJari * this.jariJariAtas;
+        // Bagian atas dari rumus (pi * r^2)
+        double luasAtap = Math.PI * Math.pow(this.jariJariAtas, 2);
+
+        this.volume = (1.0/3.0) * this.tinggi * (super.luas + bagianTengah + luasAtap);
+        return this.volume;
     }
-
-    @Override
+    
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double jariJariAlas, double jariJariAtas, double tinggi) throws PerhitunganLingkaranException, IllegalArgumentException {
+        if (jariJariAlas <= 0 || jariJariAtas <= 0 || tinggi <= 0) {
+            throw new IllegalArgumentException("Dimensi harus positif.");
+        }
+        // DIUBAH: Menerapkan ide Anda untuk memanfaatkan super.hitungLuas()
+        double luasAlas = super.hitungLuas(jariJariAlas);
+        double luasAtap = super.hitungLuas(jariJariAtas);
+        double bagianTengah = Math.PI * jariJariAlas * jariJariAtas;
+        
+        return (1.0/3.0) * tinggi * (luasAlas + bagianTengah + luasAtap);
+    }
+    
+    // Metode ini baru untuk kelas ini
     public double hitungLuasPermukaan() {
-        double luasAlasBawah = super.hitungLuas(); // Dari Lingkaran (alas bawah)
-        double luasAlasAtas = hitungLuasAlasAtas();
-
-        double R = getJariJariAlasBawah();
-        double r = this.jariJariAtas;
-        double luasSelimut = Math.PI * (R + r) * this.garisPelukis;
-
-        return luasAlasBawah + luasAlasAtas + luasSelimut;
+        // Luas Permukaan = Luas Alas + Luas Atap + Luas Selimut
+        double luasAlas = super.luas;
+        double luasAtap = Math.PI * Math.pow(this.jariJariAtas, 2);
+        double luasSelimut = Math.PI * (super.jariJari + this.jariJariAtas) * this.garisPelukis;
+        
+        this.luasPermukaan = luasAlas + luasAtap + luasSelimut;
+        return this.luasPermukaan;
+    }
+    
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double jariJariAlas, double jariJariAtas, double tinggi) throws PerhitunganLingkaranException, IllegalArgumentException {
+        if (jariJariAlas <= 0 || jariJariAtas <= 0 || tinggi <= 0) {
+            throw new IllegalArgumentException("Dimensi harus positif.");
+        }
+        // Memanfaatkan metode superclass untuk menghitung luas alas dan atap
+        double luasAlas = super.hitungLuas(jariJariAlas);
+        double luasAtap = super.hitungLuas(jariJariAtas);
+        
+        double garisPelukis = Math.sqrt(Math.pow(tinggi, 2) + Math.pow(jariJariAlas - jariJariAtas, 2));
+        double luasSelimut = Math.PI * (jariJariAlas + jariJariAtas) * garisPelukis;
+        
+        return luasAlas + luasAtap + luasSelimut;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Kerucut Terpancung (R=" + this.jariJari + ", r=" + getJariJariAtas() + ", t=" + getTinggi() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Kerucut Terpancung (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

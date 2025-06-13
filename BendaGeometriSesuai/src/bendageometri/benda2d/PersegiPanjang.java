@@ -8,13 +8,14 @@ package bendageometri.benda2d;
  *
  * @author nbnrc
  */
-public class PersegiPanjang extends Benda2D implements Runnable {
+public class PersegiPanjang extends Benda2D implements Runnable { 
     public double panjang;
     public double lebar;
     public double luas;
     public double keliling;
     
-    public PersegiPanjang(double panjang, double lebar) {
+    // Konstruktor tetap sama, sudah baik dalam menginisialisasi objek
+    public PersegiPanjang(double panjang, double lebar) throws IllegalArgumentException {
         if (panjang <= 0 || lebar <= 0) {
             throw new IllegalArgumentException("Panjang dan lebar harus bernilai positif.");
         }
@@ -26,25 +27,47 @@ public class PersegiPanjang extends Benda2D implements Runnable {
     
     @Override
     public double hitungLuas() {
+        // Metode ini menghitung DAN menyimpan luas ke atribut instance
         this.luas = this.panjang * this.lebar;
         return this.luas;
+    }
+
+    //Metode overloading untuk menghitung luas dengan parameter
+    public double hitungLuas(double p, double l) {
+        if (p <= 0 || l <= 0) {
+            throw new IllegalArgumentException("Panjang dan lebar untuk perhitungan luas harus bernilai positif.");
+        }
+        // Metode ini hanya menghitung dan mengembalikan hasil tanpa mengubah atribut instance
+        return p * l;
     }
     
     @Override
     public double hitungKeliling() {
+        // Metode ini menghitung DAN menyimpan keliling ke atribut instance
         this.keliling = 2 * (this.panjang + this.lebar);
         return this.keliling;
     }
+
+    //Metode overloading untuk menghitung keliling dengan parameter
+    public double hitungKeliling(double p, double l) {
+        if (p <= 0 || l <= 0) {
+            throw new IllegalArgumentException("Panjang dan lebar untuk perhitungan keliling harus bernilai positif.");
+        }
+        // Metode ini hanya menghitung dan mengembalikan hasil tanpa mengubah atribut instance
+        return 2 * (p + l);
+    }
     
     @Override
-    public synchronized void run() {
+    public void run() {
         try {
-            wait();
+            System.out.println("-> [Mulai] Thread untuk Persegi Panjang " + this.panjang + "x" + this.lebar);
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Persegi Panjang (setelah " + jeda + " ms)");
+            System.out.printf("   > Luas: %.2f, Keliling: %.2f\n", this.luas, this.keliling);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            System.err.println("Thread untuk Persegi Panjang diinterupsi.");
         }
-        System.out.println("[PersegiPanjang] Luas: " + hitungLuas());
-        System.out.println("[PersegiPanjang] Keliling: " + hitungKeliling());
-        notifyAll();
     }
 }

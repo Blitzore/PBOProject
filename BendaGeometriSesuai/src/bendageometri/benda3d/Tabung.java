@@ -9,44 +9,89 @@ import bendageometri.benda2d.Lingkaran;
  *
  * @author nbnrc
  */
-public class Tabung extends Lingkaran { // Mewarisi Lingkaran untuk alas tabung
-    private double tinggiTabung;
+public class Tabung extends Lingkaran implements Runnable{
+    // Atribut spesifik kelas ini dibuat private karena tidak ada turunan lagi
+    private double tinggi;
+    private double volume;
+    private double luasPermukaan;
 
     // Konstruktor utama
-    public Tabung(double jariJariAlas, double tinggiTabung) {
-        super(jariJariAlas); // Memanggil konstruktor Lingkaran untuk jari-jari alas
-                             // Validasi jariJariAlas ditangani oleh Lingkaran
-        setTinggiTabung(tinggiTabung); // Menggunakan setter untuk validasi tinggiTabung
-    }
-
-    // Getter untuk tinggiTabung
-    public double getTinggiTabung() {
-        return tinggiTabung;
-    }
-
-    // Setter
-    public void setTinggiTabung(double tinggiTabung) {
-        if (tinggiTabung <= 0) {
-            throw new IllegalArgumentException("Tinggi tabung harus bernilai positif.");
+    public Tabung(double jariJari, double tinggi) throws PerhitunganLingkaranException {
+        // Memanggil konstruktor kelas induk (Lingkaran) untuk menginisialisasi properti alas
+        super(jariJari);
+        
+        if (tinggi <= 0) {
+            // Menggunakan exception dari induknya jika tidak ada yang spesifik
+            throw new PerhitunganLingkaranException("Tinggi tabung harus bernilai positif.");
         }
-        this.tinggiTabung = tinggiTabung;
+        this.tinggi = tinggi;
+        
+        // Hitung dan simpan volume serta luas permukaan saat objek dibuat
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
+    }
+    
+    // Getter untuk mengakses atribut private
+    public double getTinggi() {
+        return this.tinggi;
     }
 
-    @Override
+    public double getVolume() {
+        return this.volume;
+    }
+
+    public double getLuasPermukaan() {
+        return this.luasPermukaan;
+    }
+
+    // Metode ini baru untuk kelas Tabung
     public double hitungVolume() {
-        // Volume Tabung = Luas Alas (dari Lingkaran) * tinggiTabung
-        // super.hitungLuas() akan memanggil Lingkaran.hitungLuas()
-        return super.hitungLuas() * this.tinggiTabung;
+        // Rumus volume tabung = Luas Alas * tinggi
+        // Memanfaatkan super.luas dari Lingkaran untuk efisiensi
+        this.volume = super.luas * this.tinggi;
+        return this.volume;
     }
-
-    @Override
+    
+    // Overloading untuk hitungVolume dengan parameter
+    public double hitungVolume(double jariJari, double tinggi) throws PerhitunganLingkaranException {
+        if (jariJari <= 0 || tinggi <= 0) {
+            throw new PerhitunganLingkaranException("Jari-jari dan tinggi harus positif.");
+        }
+        // Memanfaatkan super.hitungLuas untuk efisiensi
+        double luasAlas = super.hitungLuas(jariJari);
+        return luasAlas * tinggi;
+    }
+    
+    // Metode ini baru untuk kelas Tabung
     public double hitungLuasPermukaan() {
-        // Luas Permukaan Tabung = 2 * Luas Alas + Luas Selimut
-        // Luas Selimut = Keliling Alas * tinggiTabung
-        // super.hitungLuas() akan memanggil Lingkaran.hitungLuas()
-        // super.hitungKeliling() akan memanggil Lingkaran.hitungKeliling()
-        double luasAlas = super.hitungLuas();
-        double kelilingAlas = super.hitungKeliling();
-        return (2 * luasAlas) + (kelilingAlas * this.tinggiTabung);
+        // Luas Permukaan = (2 * Luas Alas) + Luas Selimut
+        // Luas Selimut = Keliling Alas * tinggi
+        // Memanfaatkan super.luas dan super.keliling
+        double luasSelimut = super.keliling * this.tinggi;
+        this.luasPermukaan = (2 * super.luas) + luasSelimut;
+        return this.luasPermukaan;
+    }
+    
+    // Overloading untuk hitungLuasPermukaan dengan parameter
+    public double hitungLuasPermukaan(double jariJari, double tinggi) throws PerhitunganLingkaranException {
+        if (jariJari <= 0 || tinggi <= 0) {
+            throw new PerhitunganLingkaranException("Jari-jari dan tinggi harus positif.");
+        }
+        // Memanfaatkan metode dari superclass
+        double luasAlas = super.hitungLuas(jariJari);
+        double kelilingAlas = super.hitungKeliling(jariJari);
+        double luasSelimut = kelilingAlas * tinggi;
+        return (2 * luasAlas) + luasSelimut;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Tabung r=" + this.jariJari + ", t=" + getTinggi());
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Tabung (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

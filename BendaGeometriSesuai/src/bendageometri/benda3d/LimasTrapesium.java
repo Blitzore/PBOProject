@@ -9,85 +9,99 @@ import bendageometri.benda2d.Trapesium;
  *
  * @author nbnrc
  */
-public class LimasTrapesium extends Trapesium { // Mewarisi Trapesium untuk alasnya
-    private double tinggiLimas; // Bisa mutable dengan setter
+public class LimasTrapesium extends Trapesium implements Runnable{
+    private double tinggiLimas;
+    private double volume;
+    private double luasPermukaan;
 
     // Konstruktor utama
-    public LimasTrapesium(double sisiAtasAlas, double sisiBawahAlas, 
-                          double tinggiAlasTrapesium, 
-                          double sisiMiring1Alas, double sisiMiring2Alas, 
-                          double tinggiLimas) {
-        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiring1Alas, sisiMiring2Alas);
-        setTinggiLimas(tinggiLimas);
-    }
-
-    // Overloaded constructor: jika alasnya Trapesium Sama Kaki
-    public LimasTrapesium(double sisiAtasAlas, double sisiBawahAlas, 
-                          double tinggiAlasTrapesium, 
-                          double sisiMiringSamaAlas, 
-                          double tinggiLimas) {
-        super(sisiAtasAlas, sisiBawahAlas, tinggiAlasTrapesium, sisiMiringSamaAlas, tinggiLimas);
-        setTinggiLimas(tinggiLimas);
-    }
-
-    // Getter untuk tinggiLimas
-    public double getTinggiLimas() {
-        return tinggiLimas;
-    }
-
-    // Setter untuk tinggiLimas dengan validasi
-    public void setTinggiLimas(double tinggiLimas) {
+    public LimasTrapesium(double sisiAtas, double sisiBawah, double tinggiAlas, double sisiMiring1, double sisiMiring2, double tinggiLimas)throws IllegalArgumentException {
+        // Memanggil konstruktor Trapesium yang benar
+        super(sisiAtas, sisiBawah, tinggiAlas, sisiMiring1, sisiMiring2);
+        
         if (tinggiLimas <= 0) {
             throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
         }
         this.tinggiLimas = tinggiLimas;
-    }
-
-    @Override
-    public double hitungVolume() {
-        return (1.0 / 3.0) * super.hitungLuas() * this.tinggiLimas;
-    }
-
-    /**
-     * Menghitung luas permukaan limas trapesium.
-     * Untuk limas trapesium umum, perhitungan akurat luas sisi tegak memerlukan
-     * tinggi masing-masing dari keempat sisi tegak. Metode ini, tanpa parameter tambahan,
-     * akan mengembalikan luas alas dengan peringatan.
-     * Gunakan metode hitungLuasPermukaan() dengan parameter tinggi sisi tegak
-     * untuk perhitungan akurat.
-     */
-    @Override
-    public double hitungLuasPermukaan() {
-        double luasAlas = super.hitungLuas();
-        // double rataRataApotemaAlas = getTinggi() / 2.0; // getTinggi() dari alas Trapesium
-        // double rataRataTinggiSelimut = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(rataRataApotemaAlas, 2));
-        // double luasSisiTegak = 0.5 * super.hitungKeliling() * rataRataTinggiSelimut;
         
-        System.err.println("Peringatan: hitungLuasPermukaan() untuk LimasTrapesium ini mungkin tidak akurat karena merupakan kasus umum. Hanya luas alas yang dihitung. Gunakan metode hitungLuasPermukaan() dengan parameter tinggi sisi tegak untuk hasil akurat.");
-        return luasAlas; // Mengembalikan hanya luas alas sebagai fallback
+        // Hitung dan simpan nilai saat objek dibuat
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
 
-    /**
-     * Menghitung luas permukaan limas trapesium dengan menyediakan tinggi masing-masing sisi tegak.
-     * Sisi-sisi alas trapesium adalah sisiAtas, sisiBawah, sisiMiring1, dan sisiMiring2.
-     * @param tstSisiAtas Tinggi sisi tegak yang alasnya adalah 'sisiAtas' dari Trapesium.
-     * @param tstSisiBawah Tinggi sisi tegak yang alasnya adalah 'sisiBawah' dari Trapesium.
-     * @param tstSisiMiring1 Tinggi sisi tegak yang alasnya adalah 'sisiMiring1' dari Trapesium.
-     * @param tstSisiMiring2 Tinggi sisi tegak yang alasnya adalah 'sisiMiring2' dari Trapesium.
-     * @return Luas permukaan total limas trapesium.
-     */
-    public double hitungLuasPermukaan(double tstSisiAtas, double tstSisiBawah,
-                                     double tstSisiMiring1, double tstSisiMiring2) {
-        if (tstSisiAtas <= 0 || tstSisiBawah <= 0 || tstSisiMiring1 <= 0 || tstSisiMiring2 <= 0) {
-            throw new IllegalArgumentException("Semua tinggi sisi tegak harus bernilai positif.");
+    // Getter
+    public double getTinggiLimas() { return tinggiLimas; }
+    public double getVolume() { return volume; }
+    public double getLuasPermukaan() { return luasPermukaan; }
+
+    public double hitungVolume() {
+        // Volume Limas = (Luas Alas * tinggiLimas) / 3
+        return (super.luas * this.tinggiLimas) / 3.0;
+    }
+    
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double sisiAtas, double sisiBawah, double tinggiAlas, double tinggiLimas) {
+        if (tinggiLimas <= 0) {
+            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
         }
+        // Memanfaatkan hitungLuas dari superclass Trapesium
+        double luasAlas = super.hitungLuas(sisiAtas, sisiBawah, tinggiAlas);
+        return (luasAlas * tinggiLimas) / 3.0;
+    }
+    
+    public double hitungLuasPermukaan() {
+        // Luas Permukaan Limas = Luas Alas + Luas Selimut
+        // Luas selimut adalah jumlah luas 4 sisi tegak (segitiga) yang bisa berbeda-beda.
+        // Formula ini mengasumsikan limas tegak dan menggunakan penyederhanaan.
+        
+        // Menghitung tinggi sisi tegak (slant height) untuk setiap sisi alas
+        double tsTegakAtas = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(super.getTinggi() / 2, 2));
+        double tsTegakBawah = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(super.getTinggi() / 2, 2));
+        double tsTegakMiring1 = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow((Math.abs(super.getSisiAtas() - super.getSisiBawah())) / 2, 2));
+        double tsTegakMiring2 = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow((Math.abs(super.getSisiAtas() - super.getSisiBawah())) / 2, 2));
+        
+        // Menghitung luas setiap sisi tegak
+        double luasTegakAtas = 0.5 * super.getSisiAtas() * tsTegakAtas;
+        double luasTegakBawah = 0.5 * super.getSisiBawah() * tsTegakBawah;
+        double luasTegakMiring1 = 0.5 * super.getSisiMiring1() * tsTegakMiring1;
+        double luasTegakMiring2 = 0.5 * super.getSisiMiring2() * tsTegakMiring2;
+        
+        double luasSelimut = luasTegakAtas + luasTegakBawah + luasTegakMiring1 + luasTegakMiring2;
+        
+        return super.luas + luasSelimut;
+    }
+    
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double sisiAtas, double sisiBawah, double tinggiAlas, double sisiMiring1, double sisiMiring2, double tinggiLimas) {
+         if (tinggiLimas <= 0) {
+            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
+        }
+        double luasAlas = super.hitungLuas(sisiAtas, sisiBawah, tinggiAlas);
 
-        double luasAlas = super.hitungLuas();
-        double luasSisiTegakAtas = 0.5 * super.sisiAtas * tstSisiAtas;
-        double luasSisiTegakBawah = 0.5 * super.sisiBawah * tstSisiBawah;
-        double luasSisiTegakMiring1 = 0.5 * super.sisiMiring1 * tstSisiMiring1;
-        double luasSisiTegakMiring2 = 0.5 * super.sisiMiring2 * tstSisiMiring2;
-
-        return luasAlas + luasSisiTegakAtas + luasSisiTegakBawah + luasSisiTegakMiring1 + luasSisiTegakMiring2;
+        // Logika perhitungan luas selimut sama dengan metode override, tapi dengan parameter
+        double tsTegakAtas = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(tinggiAlas / 2, 2));
+        double tsTegakBawah = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow(tinggiAlas / 2, 2));
+        double tsTegakMiring1 = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow((Math.abs(sisiAtas - sisiBawah)) / 2, 2));
+        double tsTegakMiring2 = Math.sqrt(Math.pow(tinggiLimas, 2) + Math.pow((Math.abs(sisiAtas - sisiBawah)) / 2, 2));
+        
+        double luasTegakAtas = 0.5 * sisiAtas * tsTegakAtas;
+        double luasTegakBawah = 0.5 * sisiBawah * tsTegakBawah;
+        double luasTegakMiring1 = 0.5 * sisiMiring1 * tsTegakMiring1;
+        double luasTegakMiring2 = 0.5 * sisiMiring2 * tsTegakMiring2;
+        
+        double luasSelimut = luasTegakAtas + luasTegakBawah + luasTegakMiring1 + luasTegakMiring2;
+        
+        return luasAlas + luasSelimut;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Limas Trapesium (t=" + getTinggiLimas() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Limas Trapesium (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

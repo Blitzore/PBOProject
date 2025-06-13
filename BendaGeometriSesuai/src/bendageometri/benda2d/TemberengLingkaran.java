@@ -1,131 +1,116 @@
 package bendageometri.benda2d;
 
-import java.util.concurrent.*;
-
 public class TemberengLingkaran extends Lingkaran {
+    // Atribut spesifik untuk Tembereng, dipisahkan dari Lingkaran.
+    private final double sudut;
+    private double luasTembereng;
+    private double kelilingTembereng;
 
-    // ✅ Custom Exception
-    public static class PerhitunganTemberengException extends RuntimeException {
-        public PerhitunganTemberengException(String message, Throwable cause) {
-            super(message, cause);
+    // Exception kustom yang spesifik untuk Tembereng.
+    public static class PerhitunganTemberengException extends Exception {
+        public PerhitunganTemberengException(String message) {
+            super(message);
         }
     }
 
-    private volatile double sudutPusatDerajat;
-    private final ExecutorService executor;
-
-    public TemberengLingkaran(double jariJari, double sudutPusatDerajat) {
+    // Konstruktor utama.
+    public TemberengLingkaran(double jariJari, double sudut) throws PerhitunganLingkaranException, PerhitunganTemberengException {
+        // 1. Panggil konstruktor Lingkaran. Ini akan otomatis menghitung
+        //    dan menyimpan `super.luas` dan `super.keliling` untuk lingkaran penuh.
         super(jariJari);
-        this.executor = Executors.newFixedThreadPool(2);
-        setSudutPusatDerajat(sudutPusatDerajat);
-    }
 
-    public double getSudutPusatDerajat() {
-        return sudutPusatDerajat;
-    }
-
-    public void setSudutPusatDerajat(double sudutPusatDerajat) {
-        if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
-            System.err.println("❌ Sudut tembereng tidak valid: " + sudutPusatDerajat);
-            this.sudutPusatDerajat = -1;
-        } else {
-            this.sudutPusatDerajat = sudutPusatDerajat;
+        // 2. Validasi input spesifik untuk Tembereng.
+        if (sudut <= 0 || sudut >= 360) {
+            throw new PerhitunganTemberengException("Sudut tembereng harus lebih dari 0 dan kurang dari 360 derajat.");
         }
+        this.sudut = sudut;
+
+        // 3. Hitung dan simpan nilai spesifik Tembereng saat objek dibuat.
+        this.luasTembereng = hitungLuasTembereng();
+        this.kelilingTembereng = hitungKelilingTembereng();
+    }
+
+    // --- GETTERS ---
+    // Menyediakan akses baca ke atribut private.
+    public double getSudut() {
+        return this.sudut;
+    }
+
+    public double getLuasTembereng() {
+        return this.luasTembereng;
+    }
+
+    public double getKelilingTembereng() {
+        return this.kelilingTembereng;
+    }
+
+    // --- METODE KALKULASI INSTANCE ---
+    // Metode ini menghitung nilai berdasarkan state internal objek (`this`).
+
+    public double hitungLuasTembereng() {
+        // Luas Tembereng = Luas Juring - Luas Segitiga
+        double sudutRad = Math.toRadians(this.sudut);
+        
+        // Luas juring dihitung efisien menggunakan `super.luas`
+        double luasJuring = (this.sudut / 360.0) * super.luas;
+        
+        // Luas segitiga dihitung menggunakan rumus trigonometri
+        double luasSegitiga = 0.5 * Math.pow(this.jariJari, 2) * Math.sin(sudutRad);
+        
+        this.luasTembereng = luasJuring - luasSegitiga;
+        return this.luasTembereng;
+    }
+
+    public double hitungKelilingTembereng() {
+        // Keliling Tembereng = Panjang Busur + Panjang Tali Busur
+        double sudutRad = Math.toRadians(this.sudut);
+
+        // Panjang busur dihitung efisien menggunakan `super.keliling`
+        double panjangBusur = (this.sudut / 360.0) * super.keliling;
+
+        // Panjang tali busur dihitung menggunakan rumus 2 * r * sin(sudut/2)
+        double panjangTaliBusur = 2 * this.jariJari * Math.sin(sudutRad / 2);
+
+        this.kelilingTembereng = panjangBusur + panjangTaliBusur;
+        return this.kelilingTembereng;
+    }
+
+    // --- METODE OVERLOADING (KALKULATOR PUBLIK) ---
+    // Metode ini menghitung nilai dari nol berdasarkan parameter yang diberikan.
+
+    public double hitungLuasTembereng(double jariJari, double sudut) throws PerhitunganLingkaranException, PerhitunganTemberengException {
+        if (jariJari <= 0 || sudut <= 0 || sudut >= 360) {
+            throw new PerhitunganTemberengException("Jari-jari dan sudut tidak valid.");
+        }
+        double sudutRad = Math.toRadians(sudut);
+        double luasLingkaranPenuh = super.hitungLuas(jariJari);
+        double luasJuring = (sudut / 360.0) * luasLingkaranPenuh;
+        double luasSegitiga = 0.5 * Math.pow(jariJari, 2) * Math.sin(sudutRad);
+        return luasJuring - luasSegitiga;
+    }
+
+    public double hitungKelilingTembereng(double jariJari, double sudut) throws PerhitunganLingkaranException, PerhitunganTemberengException {
+        if (jariJari <= 0 || sudut <= 0 || sudut >= 360) {
+            throw new PerhitunganTemberengException("Jari-jari dan sudut tidak valid.");
+        }
+        double sudutRad = Math.toRadians(sudut);
+        double kelilingLingkaranPenuh = super.hitungKeliling(jariJari);
+        double panjangBusur = (sudut / 360.0) * kelilingLingkaranPenuh;
+        double panjangTaliBusur = 2 * jariJari * Math.sin(sudutRad / 2);
+        return panjangBusur + panjangTaliBusur;
     }
 
     @Override
-    public double hitungLuas() {
-        Future<Double> future = executor.submit(() -> {
-            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
-                System.err.println("❌ Tidak bisa hitung luas: sudut tidak valid");
-                return -1.0;
-            }
-            double sudutRadian = Math.toRadians(sudutPusatDerajat);
-            double jariJariKuadrat = Math.pow(super.jariJari, 2);
-            double luasJuring = (sudutPusatDerajat / 360.0) * super.luas;
-            double luasSegitiga = 0.5 * jariJariKuadrat * Math.sin(sudutRadian);
-            return luasJuring - luasSegitiga;
-        });
-
+    public void run() {
         try {
-            luas = future.get();
-            return luas;
-        } catch (InterruptedException | ExecutionException e) {
-            luas = -1;
-            System.err.println("❌ Gagal menghitung luas tembereng: " + e.getMessage());
-            throw new PerhitunganTemberengException("Gagal menghitung luas tembereng", e);
+            System.out.println("-> [Mulai] Thread untuk Tembereng Lingkaran r=" + this.jariJari + ", sudut=" + getSudut());
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Tembereng Lingkaran (setelah " + jeda + " ms)");
+            System.out.printf("   > Luas Tembereng: %.2f, Keliling Tembereng: %.2f\n", getLuasTembereng(), getKelilingTembereng());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Thread untuk Tembereng Lingkaran diinterupsi.");
         }
-    }
-
-    public double hitungLuas(double jari) {
-        Future<Double> future = executor.submit(() -> {
-            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
-                System.err.println("❌ Tidak bisa hitung luas (param): sudut tidak valid");
-                return -1.0;
-            }
-            double sudutRadian = Math.toRadians(sudutPusatDerajat);
-            double jariJariKuadrat = Math.pow(jari, 2);
-            double luasJuring = (sudutPusatDerajat / 360.0) * super.hitungLuas(jari);
-            double luasSegitiga = 0.5 * jariJariKuadrat * Math.sin(sudutRadian);
-            return luasJuring - luasSegitiga;
-        });
-
-        try {
-            luas = future.get();
-            return luas;
-        } catch (InterruptedException | ExecutionException e) {
-            luas = -1;
-            System.err.println("❌ Gagal menghitung luas tembereng (param): " + e.getMessage());
-            throw new PerhitunganTemberengException("Gagal menghitung luas tembereng (dengan parameter)", e);
-        }
-    }
-
-    @Override
-    public double hitungKeliling() {
-        Future<Double> future = executor.submit(() -> {
-            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
-                System.err.println("❌ Tidak bisa hitung keliling: sudut tidak valid");
-                return -1.0;
-            }
-            double sudutRadian = Math.toRadians(sudutPusatDerajat);
-            double panjangBusur = super.jariJari * sudutRadian;
-            double panjangTaliBusur = 2 * super.getJariJari() * Math.sin(sudutRadian / 2.0);
-            return panjangBusur + panjangTaliBusur;
-        });
-
-        try {
-            keliling = future.get();
-            return keliling;
-        } catch (InterruptedException | ExecutionException e) {
-            keliling = -1;
-            System.err.println("❌ Gagal menghitung keliling tembereng: " + e.getMessage());
-            throw new PerhitunganTemberengException("Gagal menghitung keliling tembereng", e);
-        }
-    }
-
-    public double hitungKeliling(double jari) {
-        Future<Double> future = executor.submit(() -> {
-            if (sudutPusatDerajat <= 0 || sudutPusatDerajat >= 360) {
-                System.err.println("❌ Tidak bisa hitung keliling (param): sudut tidak valid");
-                return -1.0;
-            }
-            double sudutRadian = Math.toRadians(sudutPusatDerajat);
-            double panjangBusur = jari * sudutRadian;
-            double panjangTaliBusur = 2 * jari * Math.sin(sudutRadian / 2.0);
-            return panjangBusur + panjangTaliBusur;
-        });
-
-        try {
-            keliling = future.get();
-            return keliling;
-        } catch (InterruptedException | ExecutionException e) {
-            keliling = -1;
-            System.err.println("❌ Gagal menghitung keliling tembereng (param): " + e.getMessage());
-            throw new PerhitunganTemberengException("Gagal menghitung keliling tembereng (dengan parameter)", e);
-        }
-    }
-
-    public void shutdown() {
-        executor.shutdown();
     }
 }

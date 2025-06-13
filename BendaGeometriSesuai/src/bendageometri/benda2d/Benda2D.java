@@ -12,16 +12,6 @@ import bendageometri.BendaGeometri;
  */
 abstract class Benda2D implements BendaGeometri {
     @Override
-    public double hitungVolume() {
-        return 0;
-    }
-
-    @Override
-    public double hitungLuasPermukaan() {
-        return 0;
-    }
-
-    @Override
     public abstract double hitungLuas();
 
     @Override

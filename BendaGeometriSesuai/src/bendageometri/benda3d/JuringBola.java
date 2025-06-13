@@ -1,115 +1,96 @@
 package bendageometri.benda3d;
+import bendageometri.benda2d.Lingkaran;
 
-import java.util.concurrent.*;
+public class JuringBola extends Lingkaran implements Runnable {
+    private double tinggiTutup;
+    private double volume;
+    private double luasPermukaan;
 
-public class JuringBola extends Bola {
-
-    // ✅ Custom Exception
-    public static class PerhitunganJuringBolaException extends RuntimeException {
-        public PerhitunganJuringBolaException(String message, Throwable cause) {
-            super(message, cause);
+    public static class PerhitunganJuringBolaException extends Exception {
+        public PerhitunganJuringBolaException(String message) {
+            super(message);
         }
     }
 
-    private volatile double tinggiTopiJuring;
-    private final ExecutorService executor;
-
-    public JuringBola(double jariJari, double tinggiTopiJuring) {
-        super(jariJari);
-        this.executor = Executors.newFixedThreadPool(2);
-        setTinggiTopiJuring(tinggiTopiJuring);
-    }
-
-    public double getTinggiTopiJuring() {
-        return tinggiTopiJuring;
-    }
-
-    public void setTinggiTopiJuring(double tinggiTopiJuring) {
-        double rInduk = super.jariJari;
-        if (tinggiTopiJuring <= 0 || tinggiTopiJuring > 2 * rInduk) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            "Tinggi topi juring (h=%.2f) harus lebih besar dari 0 dan tidak melebihi diameter bola induk (D=%.2f).",
-                            tinggiTopiJuring, 2 * rInduk));
+    // Konstruktor utama
+    public JuringBola(double jariJariBola, double tinggiTutup) throws PerhitunganLingkaranException, PerhitunganJuringBolaException {
+        super(jariJariBola);
+        
+        if (tinggiTutup <= 0 || tinggiTutup > (2 * jariJariBola)) {
+            throw new PerhitunganJuringBolaException("Tinggi tutup juring harus lebih dari 0 dan tidak melebihi diameter bola.");
         }
-        this.tinggiTopiJuring = tinggiTopiJuring;
+        this.tinggiTutup = tinggiTutup;
+        
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
 
-    @Override
+    // Getter
+    public double getTinggiTutup() { return this.tinggiTutup; }
+    public double getVolume() { return this.volume; }
+    public double getLuasPermukaan() { return this.luasPermukaan; }
+
+    // Metode ini baru untuk kelas JuringBola
     public double hitungVolume() {
-        Future<Double> future = executor.submit(() -> {
-            double h = tinggiTopiJuring;
-            return (2.0 / 3.0) * super.luas * h;
-        });
-
-        try {
-            volume = future.get();
-            return volume;
-        } catch (InterruptedException | ExecutionException e) {
-            volume = -1;
-            System.err.println("❌ Gagal menghitung volume juring bola: " + e.getMessage());
-            throw new PerhitunganJuringBolaException("Gagal menghitung volume juring bola", e);
+        // Rumus volume juring bola = (2/3) * PI * R^2 * h
+        // Menggunakan super.luas yang merupakan PI * R^2
+        this.volume = (2.0/3.0) * super.luas * this.tinggiTutup;
+        return this.volume;
+    }
+    
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double jariJariBola, double tinggiTutup) throws PerhitunganLingkaranException, PerhitunganJuringBolaException {
+        if (jariJariBola <= 0 || tinggiTutup <= 0 || tinggiTutup > (2 * jariJariBola)) {
+            throw new PerhitunganJuringBolaException("Dimensi juring tidak valid.");
         }
+        double luasLingkaranBesar = super.hitungLuas(jariJariBola);
+        return (2.0/3.0) * luasLingkaranBesar * tinggiTutup;
     }
 
-    public double hitungVolume(double jariPengganti) {
-        Future<Double> future = executor.submit(() -> {
-            double h = tinggiTopiJuring;
-            return (2.0 / 3.0) * super.hitungLuas(jariPengganti) * h;
-        });
-
-        try {
-            volume = future.get();
-            return volume;
-        } catch (InterruptedException | ExecutionException e) {
-            volume = -1;
-            System.err.println("❌ Gagal menghitung volume juring bola (param): " + e.getMessage());
-            throw new PerhitunganJuringBolaException("Gagal menghitung volume juring bola (dengan parameter)", e);
-        }
-    }
-
-    @Override
+    // Metode ini baru untuk kelas JuringBola
     public double hitungLuasPermukaan() {
-        Future<Double> future = executor.submit(() -> {
-            double h = tinggiTopiJuring;
-            double r = super.jariJari;
-            double a = Math.sqrt(Math.max(0, h * (2 * r - h)));
-            double selimut = Math.PI * a * r;
-            double topi = 2 * Math.PI * r * h;
-            return selimut + topi;
-        });
-
-        try {
-            luasPermukaan = future.get();
-            return luasPermukaan;
-        } catch (InterruptedException | ExecutionException e) {
-            luasPermukaan = -1;
-            System.err.println("❌ Gagal menghitung luas permukaan juring bola: " + e.getMessage());
-            throw new PerhitunganJuringBolaException("Gagal menghitung luas permukaan juring bola", e);
-        }
+        // DIUBAH: Menerapkan ide Anda untuk menggunakan super.keliling
+        // Luas Permukaan = Luas Tutup Bola + Luas Selimut Kerucut
+        // L = (2*pi*R*h) + (pi*r*R)
+        // L = (super.keliling * h) + (0.5 * super.keliling * r)
+        
+        // Jari-jari alas kerucut bagian dalam: r = sqrt(h * (2R - h))
+        double jariJariAlasJuring = Math.sqrt(this.tinggiTutup * (2 * super.jariJari - this.tinggiTutup));
+        
+        // Menghitung luas tutup dan luas selimut menggunakan super.keliling
+        double luasTutup = super.keliling * this.tinggiTutup;
+        double luasSelimutKerucut = 0.5 * super.keliling * jariJariAlasJuring;
+        
+        this.luasPermukaan = luasTutup + luasSelimutKerucut;
+        return this.luasPermukaan;
     }
-
-    public double hitungLuasPermukaan(double jariPengganti) {
-        Future<Double> future = executor.submit(() -> {
-            double h = tinggiTopiJuring;
-            double a = Math.sqrt(Math.max(0, h * (2 * jariPengganti - h)));
-            double selimut = Math.PI * a * jariPengganti;
-            double topi = 2 * Math.PI * jariPengganti * h;
-            return selimut + topi;
-        });
-
-        try {
-            luasPermukaan = future.get();
-            return luasPermukaan;
-        } catch (InterruptedException | ExecutionException e) {
-            luasPermukaan = -1;
-            System.err.println("❌ Gagal menghitung luas permukaan juring bola (param): " + e.getMessage());
-            throw new PerhitunganJuringBolaException("Gagal menghitung luas permukaan juring bola (dengan parameter)",
-                    e);
+    
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double jariJariBola, double tinggiTutup) throws PerhitunganLingkaranException, PerhitunganJuringBolaException {
+        if (jariJariBola <= 0 || tinggiTutup <= 0 || tinggiTutup > (2 * jariJariBola)) {
+            throw new PerhitunganJuringBolaException("Dimensi juring tidak valid.");
         }
+        
+        // Memanfaatkan super.hitungKeliling untuk efisiensi
+        double kelilingLingkaranBesar = super.hitungKeliling(jariJariBola);
+        
+        // Logika sama dengan metode di atas, tapi dengan parameter
+        double jariJariAlasJuring = Math.sqrt(tinggiTutup * (2 * jariJariBola - tinggiTutup));
+        
+        double luasTutup = kelilingLingkaranBesar * tinggiTutup;
+        double luasSelimutKerucut = 0.5 * kelilingLingkaranBesar * jariJariAlasJuring;
+        
+        return luasTutup + luasSelimutKerucut;
     }
-
-    public void shutdown() {
-        executor.shutdown();
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Juring Bola (R=" + this.jariJari + ", h=" + getTinggiTutup() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Juring Bola (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

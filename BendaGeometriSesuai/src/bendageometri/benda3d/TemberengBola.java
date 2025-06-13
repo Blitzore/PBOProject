@@ -1,122 +1,83 @@
 package bendageometri.benda3d;
+import bendageometri.benda2d.Lingkaran;
 
-import java.util.concurrent.*;
+public class TemberengBola extends Lingkaran implements Runnable{
+    // Atribut spesifik kelas ini dibuat private karena tidak ada turunan lagi
+    private double tinggiTembereng;
+    private double volume;
+    private double luasPermukaan; // Luas permukaan melengkung dari tembereng (tutup bola)
 
-public class TemberengBola extends Bola {
-
-    // ✅ Custom Exception
-    public static class PerhitunganTemberengBolaException extends RuntimeException {
-        public PerhitunganTemberengBolaException(String message, Throwable cause) {
-            super(message, cause);
+    // Exception kustom dari file asli
+    public static class PerhitunganTemberengBolaException extends Exception {
+        public PerhitunganTemberengBolaException(String message) {
+            super(message);
         }
     }
 
-    private volatile double tinggiTemberengBola;
-    private final ExecutorService executor;
-
-    public TemberengBola(double jariJari, double tinggiTembereng) {
-        super(jariJari);
-        this.executor = Executors.newFixedThreadPool(2);
-        setTinggiTemberengBola(tinggiTembereng);
-    }
-
-    public double getTinggiTemberengBola() {
-        return tinggiTemberengBola;
-    }
-
-    public void setTinggiTemberengBola(double tinggiTembereng) {
-        double R = super.jariJari;
-        if (tinggiTembereng <= 0 || tinggiTembereng > 2 * R) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            "Tinggi tembereng bola (h=%.2f) harus lebih besar dari 0 dan tidak melebihi diameter bola induk (D=%.2f).",
-                            tinggiTembereng, 2 * R));
+    // Konstruktor utama
+    public TemberengBola(double jariJariBola, double tinggiTembereng) throws PerhitunganLingkaranException, PerhitunganTemberengBolaException {
+        // Memanggil konstruktor Lingkaran untuk merepresentasikan "lingkaran besar" bola
+        super(jariJariBola);
+        
+        if (tinggiTembereng <= 0 || tinggiTembereng > (2 * jariJariBola)) {
+            throw new PerhitunganTemberengBolaException("Tinggi tembereng harus lebih dari 0 dan tidak melebihi diameter bola.");
         }
-        this.tinggiTemberengBola = tinggiTembereng;
+        this.tinggiTembereng = tinggiTembereng;
+        
+        // Hitung dan simpan nilai saat objek dibuat
+        this.volume = hitungVolume();
+        this.luasPermukaan = hitungLuasPermukaan();
     }
 
-    @Override
+    // Getter untuk mengakses atribut private
+    public double getTinggiTembereng() { return this.tinggiTembereng; }
+    public double getVolume() { return this.volume; }
+    public double getLuasPermukaan() { return this.luasPermukaan; }
+
+    // Metode ini baru untuk kelas TemberengBola
     public double hitungVolume() {
-        Future<Double> future = executor.submit(() -> {
-            double R = super.jariJari;
-            double h = tinggiTemberengBola;
-            return (1.0 / 3.0) * Math.PI * h * h * (3 * R - h);
-        });
-
-        try {
-            volume = future.get();
-            return volume;
-        } catch (InterruptedException | ExecutionException e) {
-            volume = -1;
-            System.err.println("❌ Gagal menghitung volume tembereng bola: " + e.getMessage());
-            throw new PerhitunganTemberengBolaException("Gagal menghitung volume tembereng bola", e);
+        // Rumus volume tembereng bola (segmen) = (1/3) * PI * h^2 * (3R - h)
+        // di mana R adalah jari-jari bola dan h adalah tinggi tembereng
+        this.volume = (1.0/3.0) * Math.PI * Math.pow(this.tinggiTembereng, 2) * (3 * super.jariJari - this.tinggiTembereng);
+        return this.volume;
+    }
+    
+    // Overloading untuk hitungVolume
+    public double hitungVolume(double jariJariBola, double tinggiTembereng) throws PerhitunganTemberengBolaException {
+        if (jariJariBola <= 0 || tinggiTembereng <= 0 || tinggiTembereng > (2 * jariJariBola)) {
+            throw new PerhitunganTemberengBolaException("Dimensi tembereng tidak valid.");
         }
+        // Menghitung langsung dengan parameter
+        return (1.0/3.0) * Math.PI * Math.pow(tinggiTembereng, 2) * (3 * jariJariBola - tinggiTembereng);
     }
 
-    @Override
-    public double hitungVolume(double jariPengganti) {
-        Future<Double> future = executor.submit(() -> {
-            double h = tinggiTemberengBola;
-            return (1.0 / 3.0) * Math.PI * h * h * (3 * jariPengganti - h);
-        });
-
-        try {
-            volume = future.get();
-            return volume;
-        } catch (InterruptedException | ExecutionException e) {
-            volume = -1;
-            System.err.println("❌ Gagal menghitung volume tembereng bola (param): " + e.getMessage());
-            throw new PerhitunganTemberengBolaException("Gagal menghitung volume tembereng bola (dengan parameter)", e);
-        }
-    }
-
-    @Override
+    // Metode ini baru untuk kelas TemberengBola
     public double hitungLuasPermukaan() {
-        Future<Double> future = executor.submit(() -> {
-            double R = super.jariJari;
-            double h = tinggiTemberengBola;
-
-            double topi = super.keliling * h;
-            double rAlasKuadrat = Math.max(0, h * (2 * R - h));
-            double alas = Math.PI * rAlasKuadrat;
-
-            return topi + alas;
-        });
-
-        try {
-            luasPermukaan = future.get();
-            return luasPermukaan;
-        } catch (InterruptedException | ExecutionException e) {
-            luasPermukaan = -1;
-            System.err.println("❌ Gagal menghitung luas permukaan tembereng bola: " + e.getMessage());
-            throw new PerhitunganTemberengBolaException("Gagal menghitung luas permukaan tembereng bola", e);
-        }
+        // Menghitung luas permukaan melengkung dari tembereng (tutup bola/spherical cap)
+        // Rumus luas tutup bola = 2 * PI * R * h
+        // Kita bisa gunakan super.keliling yang merupakan 2 * PI * R
+        this.luasPermukaan = super.keliling * this.tinggiTembereng;
+        return this.luasPermukaan;
     }
-
+    
+    // Overloading untuk hitungLuasPermukaan
+    public double hitungLuasPermukaan(double jariJariBola, double tinggiTembereng) throws PerhitunganLingkaranException, PerhitunganTemberengBolaException {
+        if (jariJariBola <= 0 || tinggiTembereng <= 0) {
+            throw new PerhitunganTemberengBolaException("Dimensi untuk perhitungan luas permukaan tidak valid.");
+        }
+        // Memanfaatkan super.hitungKeliling untuk efisiensi
+        double kelilingLingkaranBesar = super.hitungKeliling(jariJariBola);
+        return kelilingLingkaranBesar * tinggiTembereng;
+    }
+    
     @Override
-    public double hitungLuasPermukaan(double jariPengganti) {
-        Future<Double> future = executor.submit(() -> {
-            double h = tinggiTemberengBola;
-
-            double topi = super.hitungKeliling(jariPengganti) * h;
-            double rAlasKuadrat = Math.max(0, h * (2 * jariPengganti - h));
-            double alas = Math.PI * rAlasKuadrat;
-
-            return topi + alas;
-        });
-
+    public void run() {
         try {
-            luasPermukaan = future.get();
-            return luasPermukaan;
-        } catch (InterruptedException | ExecutionException e) {
-            luasPermukaan = -1;
-            System.err.println("❌ Gagal menghitung luas permukaan tembereng bola (param): " + e.getMessage());
-            throw new PerhitunganTemberengBolaException(
-                    "Gagal menghitung luas permukaan tembereng bola (dengan parameter)", e);
-        }
-    }
-
-    public void shutdown() {
-        executor.shutdown();
+            System.out.println("-> [Mulai] Thread untuk Tembereng Bola (R=" + this.jariJari + ", h=" + getTinggiTembereng() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Tembereng Bola (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan (Lengkung): %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

@@ -9,107 +9,72 @@ import bendageometri.benda2d.Persegi;
  *
  * @author nbnrc
  */
-public class LimasPersegi extends Persegi {
-    private double tinggiLimas;
-    private double volume; // Atribut baru untuk menyimpan nilai volume
-    private double luasPermukaan; // Atribut baru untuk menyimpan nilai luas permukaan
+public class LimasPersegi extends Persegi implements Runnable {
+    private double tinggi;
+    private double volume;
+    private double luasPermukaan;
 
     // Konstruktor utama
-    public LimasPersegi(double sisiAlas, double tinggiLimas) throws IllegalArgumentException { // Menambahkan throws
-        super(sisiAlas); // Memanggil konstruktor Persegi (sisiAlas menjadi immutable)
-                         // Validasi sisiAlas ditangani oleh Persegi
-        setTinggiLimas(tinggiLimas); // Menggunakan setter untuk validasi tinggiLimas
-
+    public LimasPersegi(double sisi, double tinggi)throws IllegalArgumentException {
+        super(sisi);
+        if (tinggi <= 0) {
+            throw new IllegalArgumentException("Tinggi harus bernilai positif.");
+        }
+        this.tinggi = tinggi;
+        
         // Hitung dan simpan volume serta luas permukaan saat objek dibuat
         this.volume = hitungVolume();
         this.luasPermukaan = hitungLuasPermukaan();
     }
+    
+    // Getter
+    public double getTinggi() { return tinggi; }
+    public double getVolume() { return volume; }
+    public double getLuasPermukaan() { return luasPermukaan; }
 
-     // Getter untuk tinggiLimas
-    public double getTinggiLimas() {
-        return tinggiLimas;
-    }
-
-    // Setter untuk tinggiLimas dengan validasi
-    public void setTinggiLimas(double tinggiLimas) {
-        if (tinggiLimas <= 0) {
-            throw new IllegalArgumentException("Tinggi limas harus bernilai positif.");
-        }
-        this.tinggiLimas = tinggiLimas;
-    }
-
-    // Getter untuk volume
-    public double getVolume() {
-        return volume;
-    }
-
-    // Getter untuk luasPermukaan
-    public double getLuasPermukaan() {
-        return luasPermukaan;
-    }
-
-    @Override
     public double hitungVolume() {
-        // Volume Limas = (1/3) * Luas Alas (dari Persegi) * tinggiLimas
-        volume = (1.0 / 3.0) * this.luas * this.tinggiLimas; // Menggunakan atribut luas dari superclass
-        return volume;
+        // Volume Limas = (Luas Alas * tinggiLimas) / 3
+        return (super.luas * this.tinggi) / 3;
     }
 
-    // Overloading untuk hitungVolume dengan parameter sisi 's' dan tinggi 't'
-    public double hitungVolume(double s, double t) {
-        if (s <= 0 || t <= 0) {
-            throw new IllegalArgumentException("Sisi alas dan tinggi limas harus bernilai positif.");
+    // Overloading untuk hitungVolume dengan parameter
+    public double hitungVolume(double sisi, double tinggi) {
+        if (sisi <= 0 || tinggi <= 0) {
+            throw new IllegalArgumentException("Sisi dan tinggi harus bernilai positif.");
         }
-        // Memanfaatkan hitungLuas(s) dari superclass Persegi untuk luas alas
-        double luasAlasUntukS = super.hitungLuas(s); //
-        return (1.0 / 3.0) * luasAlasUntukS * t;
+        // Memanfaatkan hitungLuas(s) dari superclass Persegi
+        double luasAlas = super.hitungLuas(sisi);
+        return (luasAlas * tinggi) / 3;
     }
 
-    @Override
     public double hitungLuasPermukaan() {
-        // Luas Permukaan Limas = Luas Alas + Luas Seluruh Sisi Tegak
-        double luasAlas = this.luas; // Mengambil luas alas dari atribut public di Persegi
-        
-        // Tinggi segitiga sisi tegak (apotema limas)
-        // s_tegak = sqrt(tinggiLimas^2 + (sisiAlas/2)^2)
-        double setengahSisiAlas = this.sisi / 2.0; // Menggunakan sisi dari atribut Persegi
-        double tinggiSegitigaSisiTegak = Math.sqrt(Math.pow(this.tinggiLimas, 2) + Math.pow(setengahSisiAlas, 2));
-        if (Double.isNaN(tinggiSegitigaSisiTegak) || tinggiSegitigaSisiTegak < 0) {
-            throw new IllegalStateException("Perhitungan tinggi segitiga sisi tegak menghasilkan nilai tidak valid.");
-        }
-
-        // Luas satu sisi tegak (segitiga) = 0.5 * alasSegitiga * tinggiSegitigaSisiTegak
-        double luasSatuSisiTegak = 0.5 * this.sisi * tinggiSegitigaSisiTegak; // Menggunakan sisi dari atribut Persegi
-        
-        // Ada 4 sisi tegak yang identik pada limas persegi
-        double luasTotalSisiTegak = 4 * luasSatuSisiTegak;
-        
-        luasPermukaan = luasAlas + luasTotalSisiTegak; // Simpan juga ke atribut luasPermukaan
-        return luasPermukaan;
+        // Luas Permukaan Limas = Luas Alas + Luas Selimut
+        double sisiAlas = super.sisi;
+        // Menghitung tinggi sisi tegak (segitiga) menggunakan Pythagoras
+        double tinggiSisiTegak = Math.sqrt(Math.pow(sisiAlas / 2, 2) + Math.pow(this.tinggi, 2));
+        double luasSelimut = 2 * sisiAlas * tinggiSisiTegak; // 4 * (1/2 * sisiAlas * tinggiSisiTegak)
+        return super.luas + luasSelimut;
     }
 
-    // Overloading untuk hitungLuasPermukaan dengan parameter sisi 's' dan tinggi 't'
-    public double hitungLuasPermukaan(double s, double t) {
-        if (s <= 0 || t <= 0) {
-            throw new IllegalArgumentException("Sisi alas dan tinggi limas harus bernilai positif.");
+    // Overloading untuk hitungLuasPermukaan dengan parameter
+    public double hitungLuasPermukaan(double sisi, double tinggi) {
+        if (sisi <= 0 || tinggi <= 0) {
+            throw new IllegalArgumentException("Sisi dan tinggi harus bernilai positif.");
         }
-        
-        // Luas Alas menggunakan metode overload dari Persegi
-        double luasAlasUntukS = super.hitungLuas(s); //
-
-        // Tinggi segitiga sisi tegak (apotema limas) untuk sisi 's' dan tinggi 't'
-        double setengahS = s / 2.0;
-        double tinggiSegitigaSisiTegak = Math.sqrt(Math.pow(t, 2) + Math.pow(setengahS, 2));
-        if (Double.isNaN(tinggiSegitigaSisiTegak) || tinggiSegitigaSisiTegak < 0) {
-            throw new IllegalStateException("Perhitungan tinggi segitiga sisi tegak menghasilkan nilai tidak valid untuk parameter yang diberikan.");
-        }
-
-        // Luas satu sisi tegak
-        double luasSatuSisiTegak = 0.5 * s * tinggiSegitigaSisiTegak;
-        
-        // Ada 4 sisi tegak yang identik pada limas persegi
-        double luasTotalSisiTegak = 4 * luasSatuSisiTegak;
-        
-        return luasAlasUntukS + luasTotalSisiTegak;
+        double luasAlas = super.hitungLuas(sisi);
+        double tinggiSisiTegak = Math.sqrt(Math.pow(sisi / 2, 2) + Math.pow(tinggi, 2));
+        double luasSelimut = 2 * sisi * tinggiSisiTegak;
+        return luasAlas + luasSelimut;
+    }
+    
+    @Override
+    public void run() {
+        try {
+            System.out.println("-> [Mulai] Thread untuk Limas Persegi (alas " + this.sisi + "x" + this.sisi + ", t=" + getTinggi() + ")");
+            long jeda = (long) (Math.random() * 2000 + 1000);
+            Thread.sleep(jeda);
+            System.out.println("<- [Selesai] Limas Persegi (setelah " + jeda + " ms)");
+            System.out.printf("   > Volume: %.2f, Luas Permukaan: %.2f\n", getVolume(), getLuasPermukaan());
+        } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }
